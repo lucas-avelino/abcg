@@ -1,0 +1,5 @@
+Using GLEW.....: 2.2.0
+OpenGL vendor..: NVIDIA Corporation
+OpenGL renderer: GeForce GT 1030/PCIe/SSE2
+OpenGL version.: 4.1.0 NVIDIA 456.71
+GLSL version...: 4.10 NVIDIA via Cg compiler
