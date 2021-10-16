@@ -32,7 +32,7 @@ void OpenGLWindow::paintGL() {
 void OpenGLWindow::paintUI() {
   abcg::OpenGLWindow::paintUI();
   {
-    const auto size{ImVec2(300, 85)};
+    const auto size{ImVec2(500, 500)};
     const auto position{ImVec2((viewportWidth - size.x) / 2.0f,
                                (viewportHeight - size.y) / 2.0f)};
     ImGui::SetNextWindowPos(position);

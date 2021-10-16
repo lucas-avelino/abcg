@@ -8,13 +8,14 @@
 
 struct Listener {
   int keycode;
+  int event;
   std::function<void()> f;
 };
 
 class Input {
  public:
   void handleEvent(SDL_Event &event);
-  void addListener(int keycode, std::function<void()> f);
+  void addListener(int keycode, int event, std::function<void()> f);
 
  private:
   std::list<Listener> activeListeners{};
