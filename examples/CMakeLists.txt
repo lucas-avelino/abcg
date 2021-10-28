@@ -4,4 +4,5 @@
 #add_subdirectory(sierpinski)
 #add_subdirectory(coloredtriangles)
 #add_subdirectory(asteroids4)
-add_subdirectory(waytorun)
+#add_subdirectory(waytorun)
+add_subdirectory(glbird)

@@ -16,3 +16,5 @@ cmake -GNinja -DCMAKE_BUILD_TYPE=%BUILD_TYPE% ^
 cmake --build . --config %BUILD_TYPE% -- -j %NUMBER_OF_PROCESSORS%
 
 cd ..
+
+.\build\bin\glbird\glbird.exe 1> log.txt 
