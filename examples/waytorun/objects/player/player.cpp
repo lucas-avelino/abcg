@@ -75,15 +75,9 @@ void Player::updatePosition() {
       previousMovementDirection[0] = actualMovementDirection;
     }
 
-    // if (isXAcelerated)
     pos[0] = S0[0] + V0[0] * movementTime +
              ((A[0] * (movementTime * movementTime)) / 2);
 
-    printf("time: %f \t", movementTime);
-    printf("A[0]: %f \t", A[0]);
-    printf("velocity: %f \t", V[0]);
-    printf("velocity-V0[0]: %f \t", V0[0]);
-    printf("pos: %f\n", pos[0]);
   }
   translation = glm::vec2{pos[0], pos[1]};
 }

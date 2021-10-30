@@ -127,7 +127,6 @@ void OpenGLWindow::paintUI() {
                  ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoTitleBar |
                      ImGuiWindowFlags_NoInputs);
     ImGui::PushFont(font);
-    // format_str = "%s";
     ImGui::Text("%i", points);
 
     ImGui::PopFont();
@@ -139,7 +138,6 @@ void OpenGLWindow::paintUI() {
                    ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoTitleBar |
                        ImGuiWindowFlags_NoInputs);
       ImGui::PushFont(font);
-      // format_str = "%s";
       ImGui::Text("Você perdeu");
 
       ImGui::PopFont();
