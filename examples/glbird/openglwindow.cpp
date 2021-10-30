@@ -13,20 +13,22 @@ bool checkTubeColision(TubesColision tubeColision,
       tubeColision.bottomTubePosition[1] +
       (PipesContants::TUBE_TOTAL_HEIGHT * PipesContants::PIPES_SCALE);
 
-  float topTubeMinY =
-      tubeColision.bottomTubePosition[1] +
-      ((PipesContants::TUBE_TOTAL_HEIGHT + PipesContants::SPACE_BETWEEN_TUBES + 1) *
-       PipesContants::PIPES_SCALE);
+  float topTubeMinY = tubeColision.bottomTubePosition[1] +
+                      ((PipesContants::TUBE_TOTAL_HEIGHT +
+                        PipesContants::SPACE_BETWEEN_TUBES + 1) *
+                       PipesContants::PIPES_SCALE);
   float tubeMinX = tubeColision.bottomTubePosition[0];
   float tubeMaxX =
       tubeColision.bottomTubePosition[0] +
       (PipesContants::TUBE_TOTAL_WIDTH * PipesContants::PIPES_SCALE);
 
   printf(
-      "[checkTubeColision]coords bottomTubeMaxY: %f\ttopTubeMinY: %f\ttubeMinX: %f\ttubeMaxX: "
+      "[checkTubeColision]coords bottomTubeMaxY: %f\ttopTubeMinY: "
+      "%f\ttubeMinX: %f\ttubeMaxX: "
       "%f\tcolisionCircle: (%f,%f)\tr: %f",
-      bottomTubeMaxY, topTubeMinY, tubeMinX, tubeMaxX, colisionCircle.cordinate[0],
-      colisionCircle.cordinate[1], colisionCircle.r);
+      bottomTubeMaxY, topTubeMinY, tubeMinX, tubeMaxX,
+      colisionCircle.cordinate[0], colisionCircle.cordinate[1],
+      colisionCircle.r);
   // if (colisionCircle.cordinate[1] - bottomTubeMaxY <= colisionCircle.r &&
   //     tubeMinX < colisionCircle.cordinate[0] + colisionCircle.r &&
   //     tubeMaxX > colisionCircle.cordinate[0] - colisionCircle.r) {
@@ -36,9 +38,8 @@ bool checkTubeColision(TubesColision tubeColision,
 
   if (tubeMinX < colisionCircle.cordinate[0] + colisionCircle.r &&
       tubeMaxX > colisionCircle.cordinate[0] - colisionCircle.r &&
-      (
-          colisionCircle.cordinate[1] - bottomTubeMaxY <= colisionCircle.r ||
-          colisionCircle.cordinate[1] + colisionCircle.r >= topTubeMinY)) {
+      (colisionCircle.cordinate[1] - bottomTubeMaxY <= colisionCircle.r ||
+       colisionCircle.cordinate[1] + colisionCircle.r >= topTubeMinY)) {
     printf("\t->colisão<-\n");
     return true;
   }
@@ -64,6 +65,7 @@ void OpenGLWindow::initializeGame() {
       pipes[i].timer = t + i * 1000;
       pipes[i].registryAddPointFunction(
           std::bind(&OpenGLWindow::addPoint, this));
+      pipes[i].reset();
     }
 
     player.reset();
@@ -127,7 +129,7 @@ void OpenGLWindow::paintGL() {
   if (player.pos[1] > 1) {
     gameState = 2;
     points = 0;
-  } else if (player.pos[1] < -1) {
+  } else if (player.pos[1] <= -1) {
     gameState = 2;
     points = 0;
   }
@@ -136,26 +138,26 @@ void OpenGLWindow::paintGL() {
 void OpenGLWindow::paintUI() {
   abcg::OpenGLWindow::paintUI();
   {
-    const auto size{ImVec2(800, 800)};
+    const auto size{ImVec2(viewportWidth, viewportHeight)};
 
-    const auto position{ImVec2(390, 0.0f)};
+    const auto position{ImVec2((size.x / 2) - 5, 0.0f)};
 
-    ImGuiWindowFlags flags{ImGuiWindowFlags_NoBackground |
-                           ImGuiWindowFlags_NoTitleBar |
-                           ImGuiWindowFlags_NoInputs};
     ImGui::SetNextWindowPos(position);
     ImGui::SetNextWindowSize(size);
-    ImGui::Begin(" ", nullptr, flags);
+    ImGui::Begin(" ", nullptr, ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoTitleBar |
+                     ImGuiWindowFlags_NoInputs);
     ImGui::PushFont(font);
     // format_str = "%s";
     ImGui::Text("%i", points);
 
     ImGui::PopFont();
     ImGui::End();
-    if(gameState == 2){
-      ImGui::SetNextWindowPos(ImVec2{250.0f, 300.0f});
-      ImGui::SetNextWindowSize(ImVec2(100, 100));
-      ImGui::Begin(" ", nullptr, flags);
+    if (gameState == 2) {
+      ImGui::SetNextWindowPos(ImVec2{(size.x / 2) - 150, (size.y / 2) - 50});
+      ImGui::SetNextWindowSize(ImVec2(400, 100));
+      ImGui::Begin("  ", nullptr,
+                   ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoTitleBar |
+                       ImGuiWindowFlags_NoInputs);
       ImGui::PushFont(font);
       // format_str = "%s";
       ImGui::Text("Você perdeu");

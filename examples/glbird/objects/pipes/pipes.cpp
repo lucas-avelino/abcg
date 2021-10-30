@@ -150,7 +150,7 @@ void Pipes::paintGL(int8_t gameState) {
 
   abcg::glUniform4fv(colorLoc, 1, &color.r);
 
-  abcg::glDrawElements(GL_TRIANGLES, 12 * 3, GL_UNSIGNED_INT, nullptr);
+  abcg::glDrawElements(GL_TRIANGLES, 8 * 3, GL_UNSIGNED_INT, nullptr);
 
   abcg::glBindVertexArray(0);
 

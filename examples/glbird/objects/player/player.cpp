@@ -19,7 +19,6 @@ void Player::updatePosition() {
   if (pos[1] < -1) pos[1] = -1;  // parar no chão
   translation = glm::vec2{pos[0], pos[1]};
 
-  // (2,1.5)
   colisionCircle = ColisionCircle{
       .cordinate = glm::vec2{pos[0] + (2 * _scale), pos[1] + (1.5f * _scale)},
       .r = 1.5f * _scale};
@@ -127,6 +126,7 @@ void Player::paintGL(int8_t gameState) {
   // if (gameState == 1) {
   updatePosition();
   // }
+  printf("%i",gameState);
   abcg::glUseProgram(renderLayer);
   abcg::glBindVertexArray(vao);
 
@@ -135,7 +135,7 @@ void Player::paintGL(int8_t gameState) {
 
   abcg::glUniform4fv(colorLoc, 1, &color.r);
 
-  abcg::glDrawElements(GL_TRIANGLES, 12 * 3, GL_UNSIGNED_INT, nullptr);
+  abcg::glDrawElements(GL_TRIANGLES, 10 * 3, GL_UNSIGNED_INT, nullptr);
 
   abcg::glBindVertexArray(0);
 

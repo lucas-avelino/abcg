@@ -29,12 +29,11 @@ class Player {
   GLint translationLoc{};
   GLint colorLoc{};
   GLint scaleLoc{};
-  GLint rotationLoc{};
 
   glm::vec4 color{1.0f, 0.6f, 0.33f, 1.0f}; //255, 155, 84
-  float rotation{};
   float scale{_scale};
   glm::vec2 translation{};
+
   // Time
   int64_t timer{0};
 
@@ -45,7 +44,6 @@ class Player {
   bool isKeyPressed{false};
 
   float velocity{2.0f};
-  float actualVelocity{0.0f};
   float movementInitialPosition{_initialPos};
 
   const float gravity{-4.0f};
