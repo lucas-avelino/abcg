@@ -13,7 +13,6 @@ void Player::updatePosition() {
                            std::chrono::system_clock::now().time_since_epoch())
                            .count();
   float t = (actualTime - timer) * .002;
-  // actualVelocity = velocity + gravity * t;
   pos[1] = movementInitialPosition + t * velocity + ((gravity) * (t * t)) / 2;
 
   if (pos[1] < -1) pos[1] = -1;  // parar no chão
@@ -123,10 +122,8 @@ void Player::reset() {
 }
 
 void Player::paintGL(int8_t gameState) {
-  // if (gameState == 1) {
   updatePosition();
-  // }
-  printf("%i",gameState);
+
   abcg::glUseProgram(renderLayer);
   abcg::glBindVertexArray(vao);
 

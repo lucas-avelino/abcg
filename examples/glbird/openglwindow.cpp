@@ -22,29 +22,10 @@ bool checkTubeColision(TubesColision tubeColision,
       tubeColision.bottomTubePosition[0] +
       (PipesContants::TUBE_TOTAL_WIDTH * PipesContants::PIPES_SCALE);
 
-  printf(
-      "[checkTubeColision]coords bottomTubeMaxY: %f\ttopTubeMinY: "
-      "%f\ttubeMinX: %f\ttubeMaxX: "
-      "%f\tcolisionCircle: (%f,%f)\tr: %f",
-      bottomTubeMaxY, topTubeMinY, tubeMinX, tubeMaxX,
-      colisionCircle.cordinate[0], colisionCircle.cordinate[1],
-      colisionCircle.r);
-  // if (colisionCircle.cordinate[1] - bottomTubeMaxY <= colisionCircle.r &&
-  //     tubeMinX < colisionCircle.cordinate[0] + colisionCircle.r &&
-  //     tubeMaxX > colisionCircle.cordinate[0] - colisionCircle.r) {
-  //   printf("\t->colisão<-\n");
-  //   return true;
-  // }
-
-  if (tubeMinX < colisionCircle.cordinate[0] + colisionCircle.r &&
-      tubeMaxX > colisionCircle.cordinate[0] - colisionCircle.r &&
-      (colisionCircle.cordinate[1] - bottomTubeMaxY <= colisionCircle.r ||
-       colisionCircle.cordinate[1] + colisionCircle.r >= topTubeMinY)) {
-    printf("\t->colisão<-\n");
-    return true;
-  }
-  printf("\n");
-  return false;
+  return tubeMinX < colisionCircle.cordinate[0] + colisionCircle.r &&
+         tubeMaxX > colisionCircle.cordinate[0] - colisionCircle.r &&
+         (colisionCircle.cordinate[1] - bottomTubeMaxY <= colisionCircle.r ||
+          colisionCircle.cordinate[1] + colisionCircle.r >= topTubeMinY);
 }
 
 void OpenGLWindow::handleEvent(SDL_Event& event) {
@@ -52,7 +33,6 @@ void OpenGLWindow::handleEvent(SDL_Event& event) {
 }
 
 void OpenGLWindow::addPoint() {
-  printf("addPoint\n");
   points += 1;
 }
 
@@ -119,7 +99,6 @@ void OpenGLWindow::paintGL() {
   }
   if (gameState == 1) {
     for (int i = 0; i < 2; i++) {
-      printf("[%i]", i);
       if (checkTubeColision(pipes[i].tubeColision, player.colisionCircle)) {
         gameState = 2;
         points = 0;
@@ -144,7 +123,8 @@ void OpenGLWindow::paintUI() {
 
     ImGui::SetNextWindowPos(position);
     ImGui::SetNextWindowSize(size);
-    ImGui::Begin(" ", nullptr, ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoTitleBar |
+    ImGui::Begin(" ", nullptr,
+                 ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoTitleBar |
                      ImGuiWindowFlags_NoInputs);
     ImGui::PushFont(font);
     // format_str = "%s";
@@ -185,11 +165,3 @@ void OpenGLWindow::terminateGL() {
 
   player.terminateGL();
 }
-
-// bool checkColision(ColisionBox colisionBox, ColisionCircle colisionCircle){
-//   float leftCordinate = std::min(colisionBox.firstCordinate[0],
-//   colisionBox.secondCordinate[1]); printf("checkColision %f\n",
-//   leftCordinate);
-
-//   return false;
-// }

@@ -137,8 +137,6 @@ void Pipes::paintGL(int8_t gameState) {
 
     if (!pointWasCount && pos[0] < 0) {
       pointWasCount = true;
-
-      printf("%i: adding point, %f\n", id, pos[0]);
       addPoint();
     }
   }
