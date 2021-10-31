@@ -5,6 +5,13 @@ O projeto consiste basicamente em algumas classes.
 
 Classe que basicamente comanda o state do jogo, e os eventos globais como controlar o render dos pontos e mensagens na tela, além de ser a responsável pela propagação do ciclo de vida para as outras classes como a player e a pipes.
 
+além das funções de ciclo de vida do GL essa classe tem duas funções
+```cpp
+  bool checkTubeColision(TubesColision tubeColision, ColisionCircle colisionCircle);
+  void addPoint();
+```
+- ***checkTubeColision*** função responsável por checar se o o player colidiu com algum pipe;
+- ***addPoint*** função que é envidada para a classe pipes como referência para que seja contabilizado os pontos no state global do jogo;
 
 ### player.cpp
 
@@ -48,7 +55,7 @@ Classe que ficou responsavel por comandar o comportamento dos tubos ela possui 4
 - ***registryAddPointFunction*** função responsavel por receber a referência da função de adicionar ponto que fica localizada no openglwindow.
 
 
-E as seguinte funções:
+E as seguinte funções privadas:
 ```cpp
   void updatePosition();
   std::function<void()> addPoint;
