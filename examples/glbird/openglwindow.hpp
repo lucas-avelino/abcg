@@ -29,9 +29,6 @@ class OpenGLWindow : public abcg::OpenGLWindow {
   std::array<Pipes, 2> pipes{}; 
   std::array<GLuint, 2> pipeLayers{}; 
 
-  // Pipes pipes;
-  // GLuint pipesLayer{};
-  // Input input{};
 
   int viewportWidth{800};
   int viewportHeight{800};

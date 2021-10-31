@@ -40,7 +40,6 @@ class Player {
   // MovementFunctions
   void leftKeyDown();
   void rightKeyDown();
-  void down();
 
   void updatePosition();
   void startMovement(int coord, float aceleration);
