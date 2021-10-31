@@ -26,9 +26,9 @@ class Pipes {
   void paintGL(int8_t gameState);
   void terminateGL();
   void reset();
-  std::array<float, 2> pos{_Pipes_initialPos, -10.5f * _Pipes_scale};
-  int64_t timer{0};
   void registryAddPointFunction(std::function<void()> f);
+  std::array<float, 2> pos{-2.0f , -11.5f * _Pipes_scale};
+  int64_t timer{0};
   int id;
   TubesColision tubeColision;
   ColisionBox colisionBox;
