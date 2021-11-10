@@ -5,4 +5,7 @@
 #add_subdirectory(coloredtriangles)
 #add_subdirectory(asteroids4)
 #add_subdirectory(waytorun)
-add_subdirectory(glbird)
+#add_subdirectory(glbird)
+#add_subdirectory(loadmodel)
+add_subdirectory(lookat)
+#add_subdirectory(projeto2)
