@@ -17,4 +17,4 @@ cmake --build . --config %BUILD_TYPE% -- -j %NUMBER_OF_PROCESSORS%
 
 cd ..
 
-.\build\bin\lookat\lookat.exe 1> log.txt 
+.\build\bin\projeto2\projeto2.exe > log.txt 2>&1

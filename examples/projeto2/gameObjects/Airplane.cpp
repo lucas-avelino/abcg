@@ -1,0 +1,174 @@
+#include "Airplane.hpp"
+
+#include <fmt/core.h>
+#include <imgui.h>
+#include <tiny_obj_loader.h>
+#include "../utils/input.hpp"
+
+#include <cppitertools/itertools.hpp>
+#include <glm/gtx/fast_trigonometry.hpp>
+#include <glm/gtx/hash.hpp>
+#include <unordered_map>
+#include "abcg.hpp"
+
+// Explicit specialization of std::hash for Vertex
+namespace std {
+template <>
+struct hash<Vertex> {
+  size_t operator()(Vertex const& vertex) const noexcept {
+    const std::size_t h1{std::hash<glm::vec3>()(vertex.position)};
+    return h1;
+  }
+};
+}  // namespace std
+
+void Airplane::initializeGL(GLuint program, std::string assetsPath) {
+  abcg::glClearColor(0, 0, 0, 1);
+
+  // Enable depth buffering
+  abcg::glEnable(GL_DEPTH_TEST);
+
+  // Create program
+
+  this->program = program;
+
+  // Load model
+  loadModelFromFile(assetsPath + "airplane.obj");
+
+  // Generate VBO
+  abcg::glGenBuffers(1, &VBO);
+  abcg::glBindBuffer(GL_ARRAY_BUFFER, VBO);
+  abcg::glBufferData(GL_ARRAY_BUFFER, sizeof(vertices[0]) * vertices.size(),
+                     vertices.data(), GL_STATIC_DRAW);
+  abcg::glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+  // Generate EBO
+  abcg::glGenBuffers(1, &EBO);
+  abcg::glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+  abcg::glBufferData(GL_ELEMENT_ARRAY_BUFFER,
+                     sizeof(indices[0]) * indices.size(), indices.data(),
+                     GL_STATIC_DRAW);
+  abcg::glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+  // Create VAO
+  abcg::glGenVertexArrays(1, &VAO);
+
+  // Bind vertex attributes to current VAO
+  abcg::glBindVertexArray(VAO);
+
+  abcg::glBindBuffer(GL_ARRAY_BUFFER, VBO);
+  const GLint positionAttribute{
+      abcg::glGetAttribLocation(program, "inPosition")};
+  abcg::glEnableVertexAttribArray(positionAttribute);
+  abcg::glVertexAttribPointer(positionAttribute, 3, GL_FLOAT, GL_FALSE,
+                              sizeof(Vertex), nullptr);
+  abcg::glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+  abcg::glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+
+  // End of binding to current VAO
+  abcg::glBindVertexArray(0);
+
+  // resizeGL(getWindowSettings().width, getWindowSettings().height);
+}
+
+void Airplane::loadModelFromFile(std::string_view path) {
+  tinyobj::ObjReader reader;
+
+  if (!reader.ParseFromFile(path.data())) {
+    if (!reader.Error().empty()) {
+      throw abcg::Exception{abcg::Exception::Runtime(
+          fmt::format("Failed to load model {} ({})", path, reader.Error()))};
+    }
+    throw abcg::Exception{
+        abcg::Exception::Runtime(fmt::format("Failed to load model {}", path))};
+  }
+
+  if (!reader.Warning().empty()) {
+    fmt::print("Warning: {}\n", reader.Warning());
+  }
+
+  const auto& attrib{reader.GetAttrib()};
+  const auto& shapes{reader.GetShapes()};
+
+  vertices.clear();
+  indices.clear();
+
+  // A key:value map with key=Vertex and value=index
+  std::unordered_map<Vertex, GLuint> hash{};
+
+  // Loop over shapes
+  for (const auto& shape : shapes) {
+    // Loop over indices
+    for (const auto offset : iter::range(shape.mesh.indices.size())) {
+      // Access to vertex
+      const tinyobj::index_t index{shape.mesh.indices.at(offset)};
+
+      // Vertex position
+      const int startIndex{3 * index.vertex_index};
+      const float vx{attrib.vertices.at(startIndex + 0)};
+      const float vy{attrib.vertices.at(startIndex + 1)};
+      const float vz{attrib.vertices.at(startIndex + 2)};
+
+      Vertex vertex{};
+      vertex.position = {vx, vy, vz};
+
+      // If hash doesn't contain this vertex
+      if (hash.count(vertex) == 0) {
+        // Add this index (size of vertices)
+        hash[vertex] = vertices.size();
+        // Add this vertex
+        vertices.push_back(vertex);
+      }
+
+      indices.push_back(hash[vertex]);
+    }
+  }
+}
+
+void Airplane::paintGL() {
+
+  // Clear color buffer and depth buffer
+  // abcg::glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+  // abcg::glViewport(0, 0, viewportWidth, viewportHeight);
+
+  abcg::glUseProgram(program);
+
+  // Get location of uniform variables (could be precomputed)
+  // const GLint viewMatrixLoc{
+  //     abcg::glGetUniformLocation(program, "viewMatrix")};
+  // const GLint projMatrixLoc{
+  //     abcg::glGetUniformLocation(program, "projMatrix")};
+  const GLint modelMatrixLoc{
+      abcg::glGetUniformLocation(program, "modelMatrix")};
+  const GLint colorLoc{abcg::glGetUniformLocation(program, "color")};
+
+  // Set uniform variables for viewMatrix and projMatrix
+  // These matrices are used for every scene object
+  // abcg::glUniformMatrix4fv(viewMatrixLoc, 1, GL_FALSE,
+  //                          &camera.viewMatrix[0][0]);
+  // abcg::glUniformMatrix4fv(projMatrixLoc, 1, GL_FALSE,
+  //                          &camera.projMatrix[0][0]);
+
+  abcg::glBindVertexArray(VAO);
+
+  // Draw The Airplane
+  glm::mat4 model{1.0f};
+  model = glm::translate(model, glm::vec3(0.0f, .5f, 0.0f));
+  model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1, 0, 0));
+  model = glm::scale(model, glm::vec3(0.001f));
+
+  abcg::glUniformMatrix4fv(modelMatrixLoc, 1, GL_FALSE, &model[0][0]);
+  abcg::glUniform4f(colorLoc, 1.0f, 1.0f, 1.0f, 1.0f);
+  abcg::glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT,
+                       nullptr);
+
+  // abcg::glUseProgram(0);
+}
+
+void Airplane::terminateGL() {
+  abcg::glDeleteBuffers(1, &EBO);
+  abcg::glDeleteBuffers(1, &VBO);
+  abcg::glDeleteVertexArrays(1, &VAO);
+}
