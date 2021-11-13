@@ -202,8 +202,23 @@ void Airplane::move() {
   printf("%f\n", angle);
   rotate = glm::vec3(1, -angle, -0.5);
   // }
-  float curveAngle = glm::radians(20.0f);
+  float curveAngleDegree = 20.0f;
+  float curveAngle = glm::radians(curveAngleDegree);
   // float curveCenter = glm::vec2();
+
+  float abcAngle = glm::randians(90-curveAngleDegree);
+  
+
+  glm::vec3 middleAirplaneSize = airplaneSize / 2;
+
+  glm::vec2 A{min.x + middleAirplaneSize.x + position.x, min.z + position.z};
+  glm::vec2 B{min.x + middleAirplaneSize.x + position.x,
+              min.z + middleAirplaneSize.z + position.z};
+
+  float ab{sqrt(pow(B.x-A.x, 2) + pow(B.y-A.y, 2))};
+  float hip{ab / sinf(abcAngle)}
+  glm:vec3 curveCenter{sinf(hip) * hip, 0, cosf(hip) *hip};
+   printf("curveCenter: (%f,%f,%f)\n", curveCenter.x, curveCenter.y, curveCenter.z,);
 
   // if(timeElapsed > 5000){
   position.x = timeElapsed * -0.0025 * sinf(glm::radians(rotate.y * -90.f));
