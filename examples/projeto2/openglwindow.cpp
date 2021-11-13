@@ -84,4 +84,6 @@ void OpenGLWindow::update() {
   m_camera.dolly(m_dollySpeed * deltaTime);
   m_camera.truck(m_truckSpeed * deltaTime);
   m_camera.pan(m_panSpeed * deltaTime);
+
+  m_camera.follow(airplane.position);
 }

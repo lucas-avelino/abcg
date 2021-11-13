@@ -5,7 +5,7 @@
 void Camera::computeProjectionMatrix(int width, int height) {
   m_projMatrix = glm::mat4(1.0f);
   const auto aspect{static_cast<float>(width) / static_cast<float>(height)};
-  m_projMatrix = glm::perspective(glm::radians(70.0f), aspect, 0.1f, 5.0f);
+  m_projMatrix = glm::perspective(glm::radians(70.0f), aspect, 0.1f, 20.0f);
 }
 
 void Camera::computeViewMatrix() {
@@ -47,4 +47,9 @@ void Camera::pan(float speed) {
   m_at = transform * glm::vec4(m_at, 1.0f);
 
   computeViewMatrix();
+}
+
+void Camera::follow(glm::vec3 position) {
+  m_eye = glm::vec3(0.0f, 1.5f, 2.5f) + position;
+  m_at = glm::vec3(0.0f, 0.5f, 0.0f) + position;
 }

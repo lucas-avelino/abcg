@@ -3,12 +3,13 @@
 #include <fmt/core.h>
 #include <imgui.h>
 #include <tiny_obj_loader.h>
-#include "../utils/input.hpp"
 
 #include <cppitertools/itertools.hpp>
 #include <glm/gtx/fast_trigonometry.hpp>
 #include <glm/gtx/hash.hpp>
 #include <unordered_map>
+
+#include "../utils/input.hpp"
 #include "abcg.hpp"
 
 // Explicit specialization of std::hash for Vertex
@@ -70,6 +71,9 @@ void Airplane::initializeGL(GLuint program, std::string assetsPath) {
   abcg::glBindVertexArray(0);
 
   // resizeGL(getWindowSettings().width, getWindowSettings().height);
+  zeroTime = duration_cast<std::chrono::milliseconds>(
+                 std::chrono::system_clock::now().time_since_epoch())
+                 .count();
 }
 
 void Airplane::loadModelFromFile(std::string_view path) {
@@ -127,7 +131,6 @@ void Airplane::loadModelFromFile(std::string_view path) {
 }
 
 void Airplane::paintGL() {
-
   // Clear color buffer and depth buffer
   // abcg::glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -152,19 +155,64 @@ void Airplane::paintGL() {
   //                          &camera.projMatrix[0][0]);
 
   abcg::glBindVertexArray(VAO);
-
+  int64_t actualTime = duration_cast<std::chrono::milliseconds>(
+                           std::chrono::system_clock::now().time_since_epoch())
+                           .count();
   // Draw The Airplane
+  // printf("%f,%f,%f\n", position.x, position.y, position.z);
+  // printf("%i,%i\n", zeroTime, actualTime);
+
+  // int64_t timeRunned = actualTime - zeroTime;
   glm::mat4 model{1.0f};
-  model = glm::translate(model, glm::vec3(0.0f, .5f, 0.0f));
-  model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1, 0, 0));
+
+  // position.z = timeRunned * -0.0025;
+
+  move();
+
+  model = glm::translate(model, position);
+  model = glm::rotate(model, glm::radians(-90.0f), rotate);
   model = glm::scale(model, glm::vec3(0.001f));
 
   abcg::glUniformMatrix4fv(modelMatrixLoc, 1, GL_FALSE, &model[0][0]);
   abcg::glUniform4f(colorLoc, 1.0f, 1.0f, 1.0f, 1.0f);
-  abcg::glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT,
-                       nullptr);
+  abcg::glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, nullptr);
 
-  // abcg::glUseProgram(0);
+  max = glm::vec3(std::numeric_limits<float>::lowest());
+  min = glm::vec3(std::numeric_limits<float>::max());
+  for (const auto& vertex : vertices) {
+    max.x = std::max(max.x, vertex.position.x);
+    max.y = std::max(max.y, vertex.position.y);
+    max.z = std::max(max.z, vertex.position.z);
+    min.x = std::min(min.x, vertex.position.x);
+    min.y = std::min(min.y, vertex.position.y);
+    min.z = std::min(min.z, vertex.position.z);
+  }
+  airplaneSize = max - min;
+}
+
+void Airplane::move() {
+  int64_t actualTime = duration_cast<std::chrono::milliseconds>(
+                           std::chrono::system_clock::now().time_since_epoch())
+                           .count();
+  int64_t timeElapsed = actualTime - zeroTime;
+
+  // if (timeElapsed > 5000) {
+  float angle =
+      ((timeElapsed * 0.0025) / 5) - floor((timeElapsed * 0.0025) / 5);
+  printf("%f\n", angle);
+  rotate = glm::vec3(1, -angle, -0.5);
+  // }
+  float curveAngle = glm::radians(20.0f);
+  // float curveCenter = glm::vec2();
+
+  // if(timeElapsed > 5000){
+  position.x = timeElapsed * -0.0025 * sinf(glm::radians(rotate.y * -90.f));
+  // }
+  position.z = timeElapsed * -0.0025 * cosf(glm::radians(rotate.y * -90.f));
+  // position
+  printf("[%i]Position: (%f,%f,%f), Angle: (%f,%f,%f)\n", timeElapsed,
+         position.x, position.y, position.z, -90.f * rotate.x, -90.f * rotate.y,
+         -90.f * rotate.z);
 }
 
 void Airplane::terminateGL() {
