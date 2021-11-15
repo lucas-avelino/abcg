@@ -27,7 +27,7 @@ class Airplane {
   GLuint EBO{};
   GLuint program{};
 
-  glm::vec3 rotate{1.0f, .0f, .0f};
+  glm::vec3 rotate{0.0f, 1.0f, .0f};
 
   std::vector<Vertex> vertices;
   std::vector<GLuint> indices;

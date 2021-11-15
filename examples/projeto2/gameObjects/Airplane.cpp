@@ -161,16 +161,22 @@ void Airplane::paintGL() {
   // Draw The Airplane
   // printf("%f,%f,%f\n", position.x, position.y, position.z);
   // printf("%i,%i\n", zeroTime, actualTime);
-
+  int64_t timeElapsed = actualTime - zeroTime;
   // int64_t timeRunned = actualTime - zeroTime;
   glm::mat4 model{1.0f};
 
   // position.z = timeRunned * -0.0025;
 
   move();
-
+  float angle =
+      ((((timeElapsed * 0.0025) / 5) - floor((timeElapsed * 0.0025) / 5)) *
+       360) -
+      180;
   model = glm::translate(model, position);
-  model = glm::rotate(model, glm::radians(-90.0f), rotate);
+  // model = glm::rotate(model, glm::radians(timeElapsed * 0.05f)/2, glm::vec3(0, 1, 0));
+  model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1, 0, 0));
+  model =
+      glm::rotate(model, glm::radians(timeElapsed * 0.05f), glm::vec3(0, 0, 1));
   model = glm::scale(model, glm::vec3(0.001f));
 
   abcg::glUniformMatrix4fv(modelMatrixLoc, 1, GL_FALSE, &model[0][0]);
@@ -198,32 +204,38 @@ void Airplane::move() {
 
   // if (timeElapsed > 5000) {
   float angle =
-      ((timeElapsed * 0.0025) / 5) - floor((timeElapsed * 0.0025) / 5);
+      ((((timeElapsed * 0.005) / 5) - floor((timeElapsed * 0.005) / 5)) * 2) -
+      1;
   printf("%f\n", angle);
-  rotate = glm::vec3(1, -angle, -0.5);
+  // rotate = glm::vec3(0, 1, 0);
+  printf("rotate: (%f,%f,%f)\n", rotate.x, rotate.y, rotate.z);
   // }
-  float curveAngleDegree = 20.0f;
-  float curveAngle = glm::radians(curveAngleDegree);
-  // float curveCenter = glm::vec2();
+  // float curveAngleDegree = 40.0f;
+  // float curveAngle = glm::radians(curveAngleDegree);
+  // // float curveCenter = glm::vec2();
 
-  float abcAngle = glm::randians(90-curveAngleDegree);
-  
+  // float abcAngle = glm::radians(90 - curveAngleDegree);
 
-  glm::vec3 middleAirplaneSize = airplaneSize / 2;
+  // glm::vec3 middleAirplaneSize = airplaneSize / glm::vec3{2.0f};
 
-  glm::vec2 A{min.x + middleAirplaneSize.x + position.x, min.z + position.z};
-  glm::vec2 B{min.x + middleAirplaneSize.x + position.x,
-              min.z + middleAirplaneSize.z + position.z};
+  // glm::vec2 A{min.x + middleAirplaneSize.x + position.x, min.z + position.z};
+  // glm::vec2 B{min.x + middleAirplaneSize.x + position.x,
+  //             min.z + middleAirplaneSize.z + position.z};
 
-  float ab{sqrt(pow(B.x-A.x, 2) + pow(B.y-A.y, 2))};
-  float hip{ab / sinf(abcAngle)}
-  glm:vec3 curveCenter{sinf(hip) * hip, 0, cosf(hip) *hip};
-   printf("curveCenter: (%f,%f,%f)\n", curveCenter.x, curveCenter.y, curveCenter.z,);
+  // float ab{sqrt(pow(B.x - A.x, 2) + pow(B.y - A.y, 2))};
+  // float hip{ab / sinf(abcAngle)};
+  // glm::vec3 curveCenter{sinf(hip) * hip, 0, cosf(hip) * hip};
+  // printf("curveCenter: (%f,%f,%f)\n", curveCenter.x, curveCenter.y,
+  //        curveCenter.z);
 
+  // position
+  float r = 3.0f;
+  position.x = r * cosf(glm::radians(timeElapsed * -0.05));
+  position.z = r * sinf(glm::radians(timeElapsed * -0.05));
   // if(timeElapsed > 5000){
-  position.x = timeElapsed * -0.0025 * sinf(glm::radians(rotate.y * -90.f));
-  // }
-  position.z = timeElapsed * -0.0025 * cosf(glm::radians(rotate.y * -90.f));
+  // position.x = timeElapsed * -0.0025 * sinf(glm::radians(rotate.y * -90.f));
+  // // }
+  // position.z = timeElapsed * -0.0025 * cosf(glm::radians(rotate.y * -90.f));
   // position
   printf("[%i]Position: (%f,%f,%f), Angle: (%f,%f,%f)\n", timeElapsed,
          position.x, position.y, position.z, -90.f * rotate.x, -90.f * rotate.y,
