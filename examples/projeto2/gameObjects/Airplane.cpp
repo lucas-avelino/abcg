@@ -131,49 +131,27 @@ void Airplane::loadModelFromFile(std::string_view path) {
 }
 
 void Airplane::paintGL() {
-  // Clear color buffer and depth buffer
-  // abcg::glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-  // abcg::glViewport(0, 0, viewportWidth, viewportHeight);
 
   abcg::glUseProgram(program);
 
-  // Get location of uniform variables (could be precomputed)
-  // const GLint viewMatrixLoc{
-  //     abcg::glGetUniformLocation(program, "viewMatrix")};
-  // const GLint projMatrixLoc{
-  //     abcg::glGetUniformLocation(program, "projMatrix")};
+
   const GLint modelMatrixLoc{
       abcg::glGetUniformLocation(program, "modelMatrix")};
   const GLint colorLoc{abcg::glGetUniformLocation(program, "color")};
-
-  // Set uniform variables for viewMatrix and projMatrix
-  // These matrices are used for every scene object
-  // abcg::glUniformMatrix4fv(viewMatrixLoc, 1, GL_FALSE,
-  //                          &camera.viewMatrix[0][0]);
-  // abcg::glUniformMatrix4fv(projMatrixLoc, 1, GL_FALSE,
-  //                          &camera.projMatrix[0][0]);
 
   abcg::glBindVertexArray(VAO);
   int64_t actualTime = duration_cast<std::chrono::milliseconds>(
                            std::chrono::system_clock::now().time_since_epoch())
                            .count();
-  // Draw The Airplane
-  // printf("%f,%f,%f\n", position.x, position.y, position.z);
-  // printf("%i,%i\n", zeroTime, actualTime);
+
   int64_t timeElapsed = actualTime - zeroTime;
-  // int64_t timeRunned = actualTime - zeroTime;
   glm::mat4 model{1.0f};
-
-  // position.z = timeRunned * -0.0025;
-
   move();
   float angle =
       ((((timeElapsed * 0.0025) / 5) - floor((timeElapsed * 0.0025) / 5)) *
        360) -
       180;
   model = glm::translate(model, position);
-  // model = glm::rotate(model, glm::radians(timeElapsed * 0.05f)/2, glm::vec3(0, 1, 0));
   model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1, 0, 0));
   model =
       glm::rotate(model, glm::radians(timeElapsed * 0.05f), glm::vec3(0, 0, 1));
@@ -202,44 +180,11 @@ void Airplane::move() {
                            .count();
   int64_t timeElapsed = actualTime - zeroTime;
 
-  // if (timeElapsed > 5000) {
-  float angle =
-      ((((timeElapsed * 0.005) / 5) - floor((timeElapsed * 0.005) / 5)) * 2) -
-      1;
-  printf("%f\n", angle);
-  // rotate = glm::vec3(0, 1, 0);
-  printf("rotate: (%f,%f,%f)\n", rotate.x, rotate.y, rotate.z);
-  // }
-  // float curveAngleDegree = 40.0f;
-  // float curveAngle = glm::radians(curveAngleDegree);
-  // // float curveCenter = glm::vec2();
-
-  // float abcAngle = glm::radians(90 - curveAngleDegree);
-
-  // glm::vec3 middleAirplaneSize = airplaneSize / glm::vec3{2.0f};
-
-  // glm::vec2 A{min.x + middleAirplaneSize.x + position.x, min.z + position.z};
-  // glm::vec2 B{min.x + middleAirplaneSize.x + position.x,
-  //             min.z + middleAirplaneSize.z + position.z};
-
-  // float ab{sqrt(pow(B.x - A.x, 2) + pow(B.y - A.y, 2))};
-  // float hip{ab / sinf(abcAngle)};
-  // glm::vec3 curveCenter{sinf(hip) * hip, 0, cosf(hip) * hip};
-  // printf("curveCenter: (%f,%f,%f)\n", curveCenter.x, curveCenter.y,
-  //        curveCenter.z);
-
   // position
   float r = 3.0f;
   position.x = r * cosf(glm::radians(timeElapsed * -0.05));
   position.z = r * sinf(glm::radians(timeElapsed * -0.05));
-  // if(timeElapsed > 5000){
-  // position.x = timeElapsed * -0.0025 * sinf(glm::radians(rotate.y * -90.f));
-  // // }
-  // position.z = timeElapsed * -0.0025 * cosf(glm::radians(rotate.y * -90.f));
-  // position
-  printf("[%i]Position: (%f,%f,%f), Angle: (%f,%f,%f)\n", timeElapsed,
-         position.x, position.y, position.z, -90.f * rotate.x, -90.f * rotate.y,
-         -90.f * rotate.z);
+
 }
 
 void Airplane::terminateGL() {

@@ -2,6 +2,8 @@
 
 set BUILD_TYPE=Release
 
+../emsdk/emsdk_env.bat
+
 :: Reset build directory
 rd /s /q build 2>nul
 mkdir build & cd build
