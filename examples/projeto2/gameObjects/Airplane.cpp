@@ -147,10 +147,7 @@ void Airplane::paintGL() {
   int64_t timeElapsed = actualTime - zeroTime;
   glm::mat4 model{1.0f};
   move();
-  float angle =
-      ((((timeElapsed * 0.0025) / 5) - floor((timeElapsed * 0.0025) / 5)) *
-       360) -
-      180;
+
   model = glm::translate(model, position);
   model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1, 0, 0));
   model =
