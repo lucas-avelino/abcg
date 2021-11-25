@@ -6,3 +6,10 @@ GLSL version...: 4.10 NVIDIA via Cg compiler
 Warning: material [ 'airplane_body' ] not found in .mtl
 material [ 'airplane_wings' ] not found in .mtl
 
+Warning: Material file [ Residential ] not found in a path : .\build\bin\airplaneObstacles/assets\
+Material file [ Buildings ] not found in a path : .\build\bin\airplaneObstacles/assets\
+Material file [ 004.mtl ] not found in a path : .\build\bin\airplaneObstacles/assets\
+Failed to load material file(s). Use default material.
+material [ 'ground' ] not found in .mtl
+material [ 'hotel_glas' ] not found in .mtl
+
