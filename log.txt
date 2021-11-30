@@ -3,8 +3,3 @@ OpenGL vendor..: NVIDIA Corporation
 OpenGL renderer: GeForce GT 1030/PCIe/SSE2
 OpenGL version.: 4.1.0 NVIDIA 456.71
 GLSL version...: 4.10 NVIDIA via Cg compiler
-Warning: material [ 'airplane_body' ] not found in .mtl
-material [ 'airplane_wings' ] not found in .mtl
-
-[0;31mOpenGL error AFTER function call[0m (GL_INVALID_OPERATION: operation illegal in current state) in D:/Externo/Projetos/UFABC/abcg/examples/airplaneObstacles/ground.cpp:paintGL:46
-

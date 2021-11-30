@@ -10,9 +10,11 @@ class Airplane {
  public:
   void loadDiffuseTexture(std::string_view path);
   void loadObj(std::string_view path, bool standardize = true);
-  void render(int numTriangles = -1) const;
+  void render(GLint m_program, int numTriangles = -1);
   void setupVAO(GLuint program);
   void terminateGL();
+  glm::vec3 position{.0f, .5f, 0.0f};
+
   [[nodiscard]] int getNumTriangles() const {
     return static_cast<int>(m_indices.size()) / 3;
   }
@@ -26,7 +28,6 @@ class Airplane {
 
   // void initializeGL(GLuint program, std::string assetsPath);
   // void paintGL();
-  glm::vec3 position{.0f, .5f, 0.0f};
 
  private:
   GLuint m_VAO{};
@@ -48,6 +49,8 @@ class Airplane {
   void computeNormals();
   void createBuffers();
   void standardize();
+
+  int64_t zeroTime{0};
 };
 
 #endif

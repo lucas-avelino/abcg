@@ -9,4 +9,4 @@
 #add_subdirectory(loadmodel)
 #add_subdirectory(lookat)
 #add_subdirectory(airplane)
-add_subdirectory(airplaneObstacles)
+add_subdirectory(airplaneObstacles2)

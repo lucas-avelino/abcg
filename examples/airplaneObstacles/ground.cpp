@@ -42,7 +42,7 @@ void Ground::paintGL() {
     for (const auto x : iter::range(-N, N + 1)) {
       // Set model matrix
       glm::mat4 model{1.0f};
-      model = glm::translate(model, glm::vec3(x, 0.0f, z));
+      model = glm::translate(model, glm::vec3(x, -10.0f, z));
       abcg::glUniformMatrix4fv(m_modelMatrixLoc, 1, GL_FALSE, &model[0][0]);
 
       // Set color (checkerboard pattern)

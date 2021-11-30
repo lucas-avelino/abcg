@@ -7,6 +7,7 @@
 #include <filesystem>
 #include <glm/gtx/hash.hpp>
 #include <unordered_map>
+
 #include "../utils/types.hpp"
 
 // Explicit specialization of std::hash for Vertex
@@ -197,7 +198,7 @@ void Airplane::loadObj(std::string_view path, bool standardize) {
   createBuffers();
 }
 
-void Airplane::render(int numTriangles) const {
+void Airplane::render(GLint m_program, int numTriangles) {
   abcg::glBindVertexArray(m_VAO);
 
   abcg::glActiveTexture(GL_TEXTURE0);
@@ -213,6 +214,22 @@ void Airplane::render(int numTriangles) const {
 
   const auto numIndices{(numTriangles < 0) ? m_indices.size()
                                            : numTriangles * 3};
+  const GLint modelMatrixLoc{
+      abcg::glGetUniformLocation(m_program, "modelMatrix")};
+
+  glm::mat4 model{1.0f};
+  int64_t actualTime = duration_cast<std::chrono::milliseconds>(
+                           std::chrono::system_clock::now().time_since_epoch())
+                           .count();
+
+  int64_t timeElapsed = actualTime - zeroTime;
+  position = glm::vec3(timeElapsed * 0.0001f, 2.0f, .0f);
+  // model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1, 0, 0));
+  model = glm::translate(model, position);
+  // model =
+  //     glm::rotate(model, glm::radians(timeElapsed * 0.05f), glm::vec3(0, 0, 1));
+
+  abcg::glUniformMatrix4fv(modelMatrixLoc, 1, GL_FALSE, &model[0][0]);
 
   abcg::glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(numIndices),
                        GL_UNSIGNED_INT, nullptr);
@@ -260,6 +277,10 @@ void Airplane::setupVAO(GLuint program) {
                                 reinterpret_cast<void*>(offset));
   }
 
+  zeroTime = duration_cast<std::chrono::milliseconds>(
+                 std::chrono::system_clock::now().time_since_epoch())
+                 .count();
+
   // End of binding
   abcg::glBindBuffer(GL_ARRAY_BUFFER, 0);
   abcg::glBindVertexArray(0);
@@ -282,9 +303,9 @@ void Airplane::standardize() {
 
   // Center and scale
   const auto center{(min + max) / 2.0f};
-  const auto scaling{2.0f / glm::length(max - min)};
+  const auto scaling{0.001f};
   for (auto& vertex : m_vertices) {
-    vertex.position = (vertex.position - center) * scaling;
+    vertex.position = vertex.position * scaling;
   }
 }
 
