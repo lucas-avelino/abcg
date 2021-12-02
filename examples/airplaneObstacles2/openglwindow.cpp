@@ -3,12 +3,14 @@
 #include <fmt/core.h>
 #include <imgui.h>
 #include <tiny_obj_loader.h>
-#include "utils/input.hpp"
 
 #include <cppitertools/itertools.hpp>
+#include <glm/gtc/matrix_inverse.hpp>
 #include <glm/gtx/fast_trigonometry.hpp>
 #include <glm/gtx/hash.hpp>
 #include <unordered_map>
+
+#include "utils/input.hpp"
 
 extern Input globalInput;
 
@@ -27,7 +29,7 @@ void OpenGLWindow::initializeGL() {
                                     getAssetsPath() + "lookat.frag");
 
   m_ground.initializeGL(m_program);
-  // airplane.initializeGL(m_program, getAssetsPath());
+  airplane.initializeGL(m_program, getAssetsPath());
   resizeGL(getWindowSettings().width, getWindowSettings().height);
 }
 
@@ -46,20 +48,28 @@ void OpenGLWindow::paintGL() {
       abcg::glGetUniformLocation(m_program, "viewMatrix")};
   const GLint projMatrixLoc{
       abcg::glGetUniformLocation(m_program, "projMatrix")};
-  // const GLint modelMatrixLoc{
-  //     abcg::glGetUniformLocation(m_program, "modelMatrix")};
+  const GLint modelMatrixLoc{
+      abcg::glGetUniformLocation(m_program, "modelMatrix")};
   // const GLint colorLoc{abcg::glGetUniformLocation(m_program, "color")};
-  
+
   // Set uniform variables for viewMatrix and projMatrix
   // These matrices are used for every scene object
   abcg::glUniformMatrix4fv(viewMatrixLoc, 1, GL_FALSE,
                            &m_camera.m_viewMatrix[0][0]);
   abcg::glUniformMatrix4fv(projMatrixLoc, 1, GL_FALSE,
                            &m_camera.m_projMatrix[0][0]);
-  // airplane.paintGL();
+  const GLint normalMatrixLoc{
+      abcg::glGetUniformLocation(m_program, "normalMatrix")};
+  const auto modelViewMatrix{glm::mat3(m_camera.m_viewMatrix * m_camera.m_projMatrix)};
+  glm::mat3 normalMatrix{glm::inverseTranspose(modelViewMatrix)};
+
+  abcg::glUniformMatrix3fv(normalMatrixLoc, 1, GL_FALSE, &normalMatrix[0][0]);
+
+  airplane.paintGL();
+  m_camera.follow(glm::vec3(.0f, .0f, .0f));
   // Draw ground
   m_ground.paintGL();
-  
+
   abcg::glUseProgram(0);
 }
 
@@ -74,7 +84,7 @@ void OpenGLWindow::resizeGL(int width, int height) {
 
 void OpenGLWindow::terminateGL() {
   m_ground.terminateGL();
-  // airplane.terminateGL();
+  airplane.terminateGL();
   abcg::glDeleteProgram(m_program);
 }
 void OpenGLWindow::update() {

@@ -31,7 +31,7 @@ void Ground::initializeGL(GLuint program) {
   // Save location of uniform variables
   m_modelMatrixLoc = abcg::glGetUniformLocation(program, "modelMatrix");
   m_colorLoc = abcg::glGetUniformLocation(program, "color");
-  // rederingTypeLocale = abcg::glGetUniformLocation(program, "rederingType");
+  rederingTypeLocale = abcg::glGetUniformLocation(program, "rederingType");
 }
 
 void Ground::paintGL() {
@@ -39,7 +39,7 @@ void Ground::paintGL() {
   const int N{50};
 
   abcg::glBindVertexArray(m_VAO);
-  // abcg::glUniform1i(rederingTypeLocale, 1);
+  abcg::glUniform1i(rederingTypeLocale, 1);
 
   for (const auto z : iter::range(-N, N + 1)) {
     for (const auto x : iter::range(-N, N + 1)) {

@@ -23,52 +23,82 @@ struct hash<Vertex> {
 };
 }  // namespace std
 
-void Airplane::initializeGL(GLuint program, std::string assetsPath) {
-  // abcg::glClearColor(0, 0, 0, 1);
+void Airplane::createBuffers() {
+  // Delete previous buffers
+  abcg::glDeleteBuffers(1, &EBO);
+  abcg::glDeleteBuffers(1, &VBO);
 
-  // // Enable depth buffering
-  // abcg::glEnable(GL_DEPTH_TEST);
-
-  // Create program
-
-  this->program = program;
-
-  // Load model
-  loadModelFromFile(assetsPath + "airplane.obj");
-
-  // Generate VBO
+  // VBO
   abcg::glGenBuffers(1, &VBO);
   abcg::glBindBuffer(GL_ARRAY_BUFFER, VBO);
   abcg::glBufferData(GL_ARRAY_BUFFER, sizeof(vertices[0]) * vertices.size(),
                      vertices.data(), GL_STATIC_DRAW);
   abcg::glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-  // Generate EBO
+  // EBO
   abcg::glGenBuffers(1, &EBO);
   abcg::glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
   abcg::glBufferData(GL_ELEMENT_ARRAY_BUFFER,
                      sizeof(indices[0]) * indices.size(), indices.data(),
                      GL_STATIC_DRAW);
   abcg::glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+}
+
+void Airplane::setupVAO() {
+  // Release previous VAO
+  abcg::glDeleteVertexArrays(1, &VAO);
 
   // Create VAO
   abcg::glGenVertexArrays(1, &VAO);
-
-  // Bind vertex attributes to current VAO
   abcg::glBindVertexArray(VAO);
 
+  // Bind EBO and VBO
+  abcg::glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
   abcg::glBindBuffer(GL_ARRAY_BUFFER, VBO);
+
+  // Bind vertex attributes
   const GLint positionAttribute{
       abcg::glGetAttribLocation(program, "inPosition")};
-  abcg::glEnableVertexAttribArray(positionAttribute);
-  abcg::glVertexAttribPointer(positionAttribute, 3, GL_FLOAT, GL_FALSE,
-                              sizeof(Vertex), nullptr);
+  if (positionAttribute >= 0) {
+    abcg::glEnableVertexAttribArray(positionAttribute);
+    abcg::glVertexAttribPointer(positionAttribute, 3, GL_FLOAT, GL_FALSE,
+                                sizeof(Vertex), nullptr);
+  }
+
+  const GLint normalAttribute{abcg::glGetAttribLocation(program, "inNormal")};
+  if (normalAttribute >= 0) {
+    abcg::glEnableVertexAttribArray(normalAttribute);
+    GLsizei offset{sizeof(glm::vec3)};
+    abcg::glVertexAttribPointer(normalAttribute, 3, GL_FLOAT, GL_FALSE,
+                                sizeof(Vertex),
+                                reinterpret_cast<void*>(offset));
+  }
+
+  const GLint texCoordAttribute{
+      abcg::glGetAttribLocation(program, "inTexCoord")};
+  if (texCoordAttribute >= 0) {
+    abcg::glEnableVertexAttribArray(texCoordAttribute);
+    GLsizei offset{sizeof(glm::vec3) + sizeof(glm::vec3)};
+    abcg::glVertexAttribPointer(texCoordAttribute, 2, GL_FLOAT, GL_FALSE,
+                                sizeof(Vertex),
+                                reinterpret_cast<void*>(offset));
+  }
+
+  // End of binding
   abcg::glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-  abcg::glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-
-  // End of binding to current VAO
   abcg::glBindVertexArray(0);
+}
+
+void Airplane::initializeGL(GLuint program, std::string assetsPath) {
+  this->program = program;
+
+  loadDiffuseTexture(assetsPath + "airplane_body_diffuse_v1.jpg");
+  loadModelFromFile(assetsPath + "11805_airplane_v2_L2.obj",
+                    assetsPath + "airplane_body_diffuse_v1.jpg");
+
+  createBuffers();
+  setupVAO();
+  rederingTypeLocale = abcg::glGetUniformLocation(program, "rederingType");
 
   // resizeGL(getWindowSettings().width, getWindowSettings().height);
   zeroTime = duration_cast<std::chrono::milliseconds>(
@@ -76,7 +106,8 @@ void Airplane::initializeGL(GLuint program, std::string assetsPath) {
                  .count();
 }
 
-void Airplane::loadModelFromFile(std::string_view path) {
+void Airplane::loadModelFromFile(std::string_view path,
+                                 std::string texturePath) {
   tinyobj::ObjReader reader;
 
   if (!reader.ParseFromFile(path.data())) {
@@ -94,6 +125,7 @@ void Airplane::loadModelFromFile(std::string_view path) {
 
   const auto& attrib{reader.GetAttrib()};
   const auto& shapes{reader.GetShapes()};
+  const auto& materials{reader.GetMaterials()};
 
   vertices.clear();
   indices.clear();
@@ -128,12 +160,74 @@ void Airplane::loadModelFromFile(std::string_view path) {
       indices.push_back(hash[vertex]);
     }
   }
+  if (!materials.empty()) {
+    const auto& mat{materials.at(0)};  // First material
+    m_Ka = glm::vec4(mat.ambient[0], mat.ambient[1], mat.ambient[2], 1);
+    m_Kd = glm::vec4(mat.diffuse[0], mat.diffuse[1], mat.diffuse[2], 1);
+    m_Ks = glm::vec4(mat.specular[0], mat.specular[1], mat.specular[2], 1);
+    m_shininess = mat.shininess;
+
+    if (!mat.diffuse_texname.empty()) loadDiffuseTexture(texturePath);
+  } else {
+    // Default values
+    m_Ka = {0.1f, 0.1f, 0.1f, 1.0f};
+    m_Kd = {0.7f, 0.7f, 0.7f, 1.0f};
+    m_Ks = {1.0f, 1.0f, 1.0f, 1.0f};
+    m_shininess = 25.0f;
+  }
+}
+
+void Airplane::loadDiffuseTexture(std::string_view path) {
+  // if (!std::filesystem::exists(path)) return;
+
+  abcg::glDeleteTextures(1, &m_diffuseTexture);
+  m_diffuseTexture = abcg::opengl::loadTexture(path);
+}
+
+void Airplane::setLightConfig() {
+  const GLint lightDirLoc{
+      abcg::glGetUniformLocation(program, "lightDirWorldSpace")};
+  const GLint shininessLoc{abcg::glGetUniformLocation(program, "shininess")};
+  const GLint IaLoc{abcg::glGetUniformLocation(program, "Ia")};
+  const GLint IdLoc{abcg::glGetUniformLocation(program, "Id")};
+  const GLint IsLoc{abcg::glGetUniformLocation(program, "Is")};
+  const GLint KaLoc{abcg::glGetUniformLocation(program, "Ka")};
+  const GLint KdLoc{abcg::glGetUniformLocation(program, "Kd")};
+  const GLint KsLoc{abcg::glGetUniformLocation(program, "Ks")};
+
+  const auto lightDirRotated{glm::angleAxis(90.0f, glm::vec3(0, 1, 0)) *
+                             glm::vec4(-1.0f, -1.0f, -1.0f, 0.0f)};
+  abcg::glUniform4fv(lightDirLoc, 1, &lightDirRotated.x);
+  abcg::glUniform4fv(IaLoc, 1, &m_Ia.x);
+  abcg::glUniform4fv(IdLoc, 1, &m_Id.x);
+  abcg::glUniform4fv(IsLoc, 1, &m_Is.x);
+  abcg::glUniform1f(shininessLoc, m_shininess);
+  abcg::glUniform4fv(KaLoc, 1, &m_Ka.x);
+  abcg::glUniform4fv(KdLoc, 1, &m_Kd.x);
+  abcg::glUniform4fv(KsLoc, 1, &m_Ks.x);
+
+
+
 }
 
 void Airplane::paintGL() {
-
   abcg::glUseProgram(program);
 
+  abcg::glActiveTexture(GL_TEXTURE0);
+  abcg::glBindTexture(GL_TEXTURE_2D, m_diffuseTexture);
+  abcg::glUniform1i(rederingTypeLocale, 0);
+
+  // Set minification and magnification parameters
+  abcg::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  abcg::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+  // Set texture wrapping parameters
+  abcg::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+  abcg::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+  // Set  light vars
+  setLightConfig();
+  abcg::glUniform1i(abcg::glGetUniformLocation(program, "diffuseTex"), 0);
 
   const GLint modelMatrixLoc{
       abcg::glGetUniformLocation(program, "modelMatrix")};
@@ -179,9 +273,8 @@ void Airplane::move() {
 
   // position
   float r = 3.0f;
-  position.x = r * cosf(glm::radians(timeElapsed * -0.05));
-  position.z = r * sinf(glm::radians(timeElapsed * -0.05));
-
+  // position.x = r * cosf(glm::radians(timeElapsed * -0.05));
+  // position.z = r * sinf(glm::radians(timeElapsed * -0.05));
 }
 
 void Airplane::terminateGL() {

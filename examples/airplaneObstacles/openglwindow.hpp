@@ -60,6 +60,8 @@ class OpenGLWindow : public abcg::OpenGLWindow {
   void loadModel(std::string_view path);
 
   void update();
+
+  
 };
 
 #endif

@@ -36,7 +36,23 @@ class Airplane {
   glm::vec3 max;
   glm::vec3 airplaneSize;
 
-  void loadModelFromFile(std::string_view path);
+  GLuint m_diffuseTexture{};
+  GLint rederingTypeLocale{};
+
+  void loadModelFromFile(std::string_view path, std::string texturePath);
+  void loadDiffuseTexture(std::string_view path);
+
   void move();
+  void createBuffers();
+  void setupVAO();
+  void setLightConfig();
+
+  glm::vec4 m_Ia{1.0f};
+  glm::vec4 m_Id{1.0f};
+  glm::vec4 m_Is{1.0f};
+  glm::vec4 m_Ka;
+  glm::vec4 m_Kd;
+  glm::vec4 m_Ks;
+  float m_shininess{};
 };
 #endif
