@@ -3,6 +3,8 @@ OpenGL vendor..: NVIDIA Corporation
 OpenGL renderer: GeForce GT 1030/PCIe/SSE2
 OpenGL version.: 4.1.0 NVIDIA 456.71
 GLSL version...: 4.10 NVIDIA via Cg compiler
-Warning: Both `d` and `Tr` parameters defined for "airplane_body". Use the value of `d` for dissolve (line 8 in .mtl.)
-Both `d` and `Tr` parameters defined for "airplane_wings". Use the value of `d` for dissolve (line 22 in .mtl.)
+Warning: Material file [ 11805_airplane_v2_L2.mtl ] not found in a path : .\build\bin\airplaneObstacles2/assets/airplane_body_diffuse_v1.jpg\
+Failed to load material file(s). Use default material.
+material [ 'airplane_body' ] not found in .mtl
+material [ 'airplane_wings' ] not found in .mtl
 

@@ -18,10 +18,13 @@ template <>
 struct hash<Vertex> {
   size_t operator()(Vertex const& vertex) const noexcept {
     const std::size_t h1{std::hash<glm::vec3>()(vertex.position)};
-    return h1;
+    const std::size_t h2{std::hash<glm::vec3>()(vertex.normal)};
+    const std::size_t h3{std::hash<glm::vec2>()(vertex.texCoord)};
+    return h1 ^ h2 ^ h3;
   }
 };
 }  // namespace std
+   // namespace std
 
 void Airplane::createBuffers() {
   // Delete previous buffers
@@ -107,10 +110,13 @@ void Airplane::initializeGL(GLuint program, std::string assetsPath) {
 }
 
 void Airplane::loadModelFromFile(std::string_view path,
-                                 std::string texturePath) {
+                                 std::string assetsPath) {
+  tinyobj::ObjReaderConfig readerConfig;
+  readerConfig.mtl_search_path = assetsPath;  // Path to material files
+
   tinyobj::ObjReader reader;
 
-  if (!reader.ParseFromFile(path.data())) {
+  if (!reader.ParseFromFile(path.data(), readerConfig)) {
     if (!reader.Error().empty()) {
       throw abcg::Exception{abcg::Exception::Runtime(
           fmt::format("Failed to load model {} ({})", path, reader.Error()))};
@@ -130,6 +136,9 @@ void Airplane::loadModelFromFile(std::string_view path,
   vertices.clear();
   indices.clear();
 
+  m_hasNormals = false;
+  m_hasTexCoords = false;
+
   // A key:value map with key=Vertex and value=index
   std::unordered_map<Vertex, GLuint> hash{};
 
@@ -146,8 +155,32 @@ void Airplane::loadModelFromFile(std::string_view path,
       const float vy{attrib.vertices.at(startIndex + 1)};
       const float vz{attrib.vertices.at(startIndex + 2)};
 
+      // Vertex normal
+      float nx{};
+      float ny{};
+      float nz{};
+      if (index.normal_index >= 0) {
+        m_hasNormals = true;
+        const int normalStartIndex{3 * index.normal_index};
+        nx = attrib.normals.at(normalStartIndex + 0);
+        ny = attrib.normals.at(normalStartIndex + 1);
+        nz = attrib.normals.at(normalStartIndex + 2);
+      }
+
+      // Vertex texture coordinates
+      float tu{};
+      float tv{};
+      if (index.texcoord_index >= 0) {
+        m_hasTexCoords = true;
+        const int texCoordsStartIndex{2 * index.texcoord_index};
+        tu = attrib.texcoords.at(texCoordsStartIndex + 0);
+        tv = attrib.texcoords.at(texCoordsStartIndex + 1);
+      }
+
       Vertex vertex{};
       vertex.position = {vx, vy, vz};
+      vertex.normal = {nx, ny, nz};
+      vertex.texCoord = {tu, tv};
 
       // If hash doesn't contain this vertex
       if (hash.count(vertex) == 0) {
@@ -160,6 +193,8 @@ void Airplane::loadModelFromFile(std::string_view path,
       indices.push_back(hash[vertex]);
     }
   }
+
+  // Use properties of first material, if available
   if (!materials.empty()) {
     const auto& mat{materials.at(0)};  // First material
     m_Ka = glm::vec4(mat.ambient[0], mat.ambient[1], mat.ambient[2], 1);
@@ -167,13 +202,18 @@ void Airplane::loadModelFromFile(std::string_view path,
     m_Ks = glm::vec4(mat.specular[0], mat.specular[1], mat.specular[2], 1);
     m_shininess = mat.shininess;
 
-    if (!mat.diffuse_texname.empty()) loadDiffuseTexture(texturePath);
+    if (!mat.diffuse_texname.empty())
+      loadDiffuseTexture(assetsPath + mat.diffuse_texname);
   } else {
     // Default values
     m_Ka = {0.1f, 0.1f, 0.1f, 1.0f};
     m_Kd = {0.7f, 0.7f, 0.7f, 1.0f};
     m_Ks = {1.0f, 1.0f, 1.0f, 1.0f};
     m_shininess = 25.0f;
+  }
+
+  if (!m_hasNormals) {
+    computeNormals();
   }
 }
 
@@ -205,9 +245,38 @@ void Airplane::setLightConfig() {
   abcg::glUniform4fv(KaLoc, 1, &m_Ka.x);
   abcg::glUniform4fv(KdLoc, 1, &m_Kd.x);
   abcg::glUniform4fv(KsLoc, 1, &m_Ks.x);
+}
 
+void Airplane::computeNormals() {
+  // Clear previous vertex normals
+  for (auto& vertex : vertices) {
+    vertex.normal = glm::zero<glm::vec3>();
+  }
 
+  // Compute face normals
+  for (const auto offset : iter::range<int>(0, indices.size(), 3)) {
+    // Get face vertices
+    Vertex& a{vertices.at(indices.at(offset + 0))};
+    Vertex& b{vertices.at(indices.at(offset + 1))};
+    Vertex& c{vertices.at(indices.at(offset + 2))};
 
+    // Compute normal
+    const auto edge1{b.position - a.position};
+    const auto edge2{c.position - b.position};
+    const glm::vec3 normal{glm::cross(edge1, edge2)};
+
+    // Accumulate on vertices
+    a.normal += normal;
+    b.normal += normal;
+    c.normal += normal;
+  }
+
+  // Normalize
+  for (auto& vertex : vertices) {
+    vertex.normal = glm::normalize(vertex.normal);
+  }
+
+  m_hasNormals = true;
 }
 
 void Airplane::paintGL() {
@@ -244,8 +313,8 @@ void Airplane::paintGL() {
 
   model = glm::translate(model, position);
   model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1, 0, 0));
-  model =
-      glm::rotate(model, glm::radians(timeElapsed * 0.05f), glm::vec3(0, 0, 1));
+  // model =
+  //     glm::rotate(model, glm::radians(timeElapsed * 0.05f), glm::vec3(0, 0, 1));
   model = glm::scale(model, glm::vec3(0.001f));
 
   abcg::glUniformMatrix4fv(modelMatrixLoc, 1, GL_FALSE, &model[0][0]);
@@ -274,7 +343,7 @@ void Airplane::move() {
   // position
   float r = 3.0f;
   // position.x = r * cosf(glm::radians(timeElapsed * -0.05));
-  // position.z = r * sinf(glm::radians(timeElapsed * -0.05));
+  position.z = timeElapsed * -0.002f;
 }
 
 void Airplane::terminateGL() {

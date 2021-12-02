@@ -66,7 +66,7 @@ void OpenGLWindow::paintGL() {
   abcg::glUniformMatrix3fv(normalMatrixLoc, 1, GL_FALSE, &normalMatrix[0][0]);
 
   airplane.paintGL();
-  m_camera.follow(glm::vec3(.0f, .0f, .0f));
+  // m_camera.follow(glm::vec3(.0f, .0f, .0f));
   // Draw ground
   m_ground.paintGL();
 
@@ -95,5 +95,5 @@ void OpenGLWindow::update() {
   m_camera.truck(m_truckSpeed * deltaTime);
   m_camera.pan(m_panSpeed * deltaTime);
 
-  // m_camera.follow(airplane.position);
+  m_camera.follow(airplane.position);
 }

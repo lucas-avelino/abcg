@@ -3,15 +3,8 @@
 
 #include <vector>
 
+#include "../utils/types.hpp"
 #include "abcg.hpp"
-
-struct Vertex {
-  glm::vec3 position;
-
-  bool operator==(const Vertex& other) const {
-    return position == other.position;
-  }
-};
 
 class Airplane {
  public:
@@ -46,6 +39,7 @@ class Airplane {
   void createBuffers();
   void setupVAO();
   void setLightConfig();
+  void computeNormals();
 
   glm::vec4 m_Ia{1.0f};
   glm::vec4 m_Id{1.0f};
@@ -54,5 +48,7 @@ class Airplane {
   glm::vec4 m_Kd;
   glm::vec4 m_Ks;
   float m_shininess{};
+  bool m_hasNormals{false};
+  bool m_hasTexCoords{false};
 };
 #endif
