@@ -65,8 +65,11 @@ void Building::createBuffers() {
   fmt::print("Created Buffers\n");
 }
 
-void Building::initGame(glm::vec3 position){
+void Building::initGame(glm::vec3 position) {
   this->position = position;
+  colisionRect =
+      Rectangle{.coord = glm::vec2(position.x - 0.575, position.z - 0.575),
+                .size = glm::vec2(1.15f)};
 }
 
 void Building::setupVAO(int groupOffset) {

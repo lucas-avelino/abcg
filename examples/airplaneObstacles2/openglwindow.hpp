@@ -4,6 +4,8 @@
 #include <list>
 #include <vector>
 
+#include <imgui.h>
+
 #include "abcg.hpp"
 #include "camera.hpp"
 #include "gameObjects/airplane.hpp"
@@ -28,6 +30,7 @@ class OpenGLWindow : public abcg::OpenGLWindow {
 
   int m_viewportWidth{};
   int m_viewportHeight{};
+  ImFont* font{};
 
   Camera m_camera;
   float m_dollySpeed{0.0f};
@@ -47,6 +50,9 @@ class OpenGLWindow : public abcg::OpenGLWindow {
   GameState gameState{.state = 0};
 
   void spacePress();
+
+  // Timer
+  int64_t zeroTime{0};
 };
 
 #endif

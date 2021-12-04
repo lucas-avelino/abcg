@@ -67,10 +67,27 @@ void OpenGLWindow::spacePress() {
     resetBuildings();
     airplane.initGame();
     gameState.state = 1;
+    zeroTime = duration_cast<std::chrono::milliseconds>(
+                   std::chrono::system_clock::now().time_since_epoch())
+                   .count();
+  }
+  if (gameState.state == 2) {
+    gameState.state = 0;
+     resetBuildings();
+    airplane.initGame();
+    gameState.state = 1;
+
   }
 }
 
 void OpenGLWindow::initializeGL() {
+  ImGuiIO& io{ImGui::GetIO()};
+  const auto filename{getAssetsPath() + "Inconsolata-Medium.ttf"};
+  font = io.Fonts->AddFontFromFileTTF(filename.c_str(), 60.0f);
+  if (font == nullptr) {
+    throw abcg::Exception{abcg::Exception::Runtime("Cannot load font file")};
+  }
+
   abcg::glClearColor(0.529f, 0.807f, 0.921f, 1);
 
   globalInput.addListener(SDLK_SPACE, SDL_KEYDOWN,
@@ -143,20 +160,15 @@ void OpenGLWindow::paintGL() {
   int airplaneZPositionFloor = floor(airplane.position.z);
 
   // Only check colision with airplane is near to 10 multiples
-  if (airplaneZPositionFloor < 0 &&
+  if (gameState.state == 1  && airplaneZPositionFloor < 1 &&
       (airplaneZPositionFloor % 9 == 0 || airplaneZPositionFloor % 10 == 0 ||
        airplaneZPositionFloor % 11 == 0)) {
-    fmt::print("Colision[1]: {}\n",
-               reactsCollision(buildings.front().building1.colisionRect,
-                               airplane.colisionRect));
-    fmt::print("Colision[2]: {}\n",
-               reactsCollision(buildings.front().building2.colisionRect,
-                               airplane.colisionRect));
     if (reactsCollision(buildings.front().building1.colisionRect,
                         airplane.colisionRect) ||
         reactsCollision(buildings.front().building2.colisionRect,
                         airplane.colisionRect)) {
-      gameState.state = 0;
+      gameState.state = 2;
+      fmt::print("Collision \n");
     }
   }
 
@@ -169,7 +181,29 @@ void OpenGLWindow::paintGL() {
   abcg::glUseProgram(0);
 }
 
-void OpenGLWindow::paintUI() { abcg::OpenGLWindow::paintUI(); }
+void OpenGLWindow::paintUI() {
+  abcg::OpenGLWindow::paintUI();
+  {
+    const auto size{ImVec2(m_viewportWidth, m_viewportHeight)};
+
+    const auto position{ImVec2((size.x / 2) - 5, 0.0f)};
+
+    ImGui::SetNextWindowPos(position);
+    ImGui::SetNextWindowSize(size);
+    if (gameState.state == 2) {
+      ImGui::SetNextWindowPos(ImVec2{(size.x / 2) - 150, (size.y / 2) - 50});
+      ImGui::SetNextWindowSize(ImVec2(400, 100));
+      ImGui::Begin("  ", nullptr,
+                   ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoTitleBar |
+                       ImGuiWindowFlags_NoInputs);
+      ImGui::PushFont(this->font);
+      ImGui::Text("Você perdeu");
+
+      ImGui::PopFont();
+      ImGui::End();
+    }
+  }
+}
 
 void OpenGLWindow::resizeGL(int width, int height) {
   m_viewportWidth = width;
