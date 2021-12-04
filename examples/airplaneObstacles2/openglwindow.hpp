@@ -5,9 +5,9 @@
 
 #include "abcg.hpp"
 #include "camera.hpp"
-#include "ground.hpp"
 #include "gameObjects/airplane.hpp"
 #include "gameObjects/building.hpp"
+#include "ground.hpp"
 
 class OpenGLWindow : public abcg::OpenGLWindow {
  protected:
@@ -34,9 +34,18 @@ class OpenGLWindow : public abcg::OpenGLWindow {
 
   Ground m_ground;
   Airplane airplane;
-  Building building;
+  std::vector<Building> buildings{Building{glm::vec3(0, 0, -10.0f)},
+                                  Building{glm::vec3(1.15f, 0.0f, -10.0f)},
+                                  Building{glm::vec3(-1.15f, 0, -20.0f)},
+                                  Building{glm::vec3(1.15f, 0, -20.0f)},
+                                  Building{glm::vec3(-1.15f, 0, -30.0f)},
+                                  Building{glm::vec3(0, 0, -30.0f)}
 
+  };
   void update();
+
+  // Building spawn logic
+  void respawnBuildings(std::vector<int> toRespawnBuildings);
 };
 
 #endif

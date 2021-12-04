@@ -8,6 +8,9 @@
 
 class Building {
  public:
+  Building(glm::vec3 position){
+    this->position = position;
+  };
   void initializeGL(GLuint program, std::string assetsPath);
   void paintGL();
   void resizeGL(int width, int height);
@@ -35,7 +38,6 @@ class Building {
   void loadModelFromFile(std::string_view path, std::string texturePath);
   void loadDiffuseTexture(std::string_view path, int index);
 
-  void move();
   void createBuffers();
   void setupVAO(int groupOffset);
   void setLightConfig();

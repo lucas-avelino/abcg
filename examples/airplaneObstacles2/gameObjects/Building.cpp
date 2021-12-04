@@ -113,10 +113,8 @@ void Building::setupVAO(int groupOffset) {
   // }
 }
 
-void Building::initializeGL(GLuint program, std::string assetsPath) {
-  this->program = program;
-
-  // loadDiffuseTexture(assetsPath + "airplane_body_diffuse_v1.jpg");
+void Building::initializeGL(GLuint _program, std::string assetsPath) {
+  program = _program;
   loadModelFromFile(assetsPath + "building/Building.obj",
                     assetsPath + "building/");
 
@@ -124,7 +122,6 @@ void Building::initializeGL(GLuint program, std::string assetsPath) {
   // setupVAO();
   rederingTypeLocale = abcg::glGetUniformLocation(program, "rederingType");
 
-  // resizeGL(getWindowSettings().width, getWindowSettings().height);
   zeroTime = duration_cast<std::chrono::milliseconds>(
                  std::chrono::system_clock::now().time_since_epoch())
                  .count();
@@ -333,6 +330,15 @@ void Building::computeNormals() {
 
 void Building::paintGL() {
   abcg::glUseProgram(program);
+  fmt::print("[Building][paintGL]position: ({}, {}, {})\n", position.x,
+             position.y, position.z);
+
+  glm::mat4 model{1.0f};
+  model = glm::translate(model, position);
+  model = glm::scale(model, glm::vec3(0.0005f));
+  abcg::glUniformMatrix4fv(abcg::glGetUniformLocation(program, "modelMatrix"),
+                           1, GL_FALSE, &model[0][0]);
+
   for (const auto groupOffset : iter::range(verticeGroups.size())) {
     setupVAO(groupOffset);
     abcg::glActiveTexture(GL_TEXTURE0);
@@ -352,34 +358,14 @@ void Building::paintGL() {
     setLightConfig();
     abcg::glUniform1i(abcg::glGetUniformLocation(program, "diffuseTex"), 0);
 
-    const GLint modelMatrixLoc{
-        abcg::glGetUniformLocation(program, "modelMatrix")};
     const GLint colorLoc{abcg::glGetUniformLocation(program, "color")};
 
     abcg::glBindVertexArray(VAO[groupOffset]);
 
-    glm::mat4 model{1.0f};
-
-    model = glm::scale(model, glm::vec3(0.0005f));
-    model = glm::translate(model, glm::vec3(0, 0, -15.0f));
-
-    abcg::glUniformMatrix4fv(modelMatrixLoc, 1, GL_FALSE, &model[0][0]);
     abcg::glUniform4f(colorLoc, 1.0f, 1.0f, 1.0f, 1.0f);
     abcg::glDrawElements(GL_TRIANGLES, indices[groupOffset].size(),
                          GL_UNSIGNED_INT, nullptr);
   }
-}
-
-void Building::move() {
-  int64_t actualTime = duration_cast<std::chrono::milliseconds>(
-                           std::chrono::system_clock::now().time_since_epoch())
-                           .count();
-  int64_t timeElapsed = actualTime - zeroTime;
-
-  // position
-  float r = 3.0f;
-  // position.x = r * cosf(glm::radians(timeElapsed * -0.05));
-  // position.z = timeElapsed * -0.002f;
 }
 
 void Building::terminateGL() {

@@ -18,8 +18,25 @@ void OpenGLWindow::handleEvent(SDL_Event& event) {
   globalInput.handleEvent(event);
 }
 
+void OpenGLWindow::respawnBuildings(std::vector<int> toRespawnBuildings) {
+  fmt::print("[OpenGLWindow][respawnBuildings] started\n");
+  int newXPositionFirstItem = (rand() % 3) - 1;
+  int newXPositionSecondItem = (rand() % 3) - 1;
+  while (newXPositionFirstItem == newXPositionSecondItem)
+    newXPositionSecondItem = (rand() % 3) - 1;
+
+  buildings.at(toRespawnBuildings.at(0)).position.x =
+      newXPositionFirstItem * 1.15f;
+  buildings.at(toRespawnBuildings.at(0)).position.z =
+      buildings.at(toRespawnBuildings.at(0)).position.z - 30.0f;
+  buildings.at(toRespawnBuildings.at(1)).position.x =
+      newXPositionSecondItem * 1.15f;
+  buildings.at(toRespawnBuildings.at(1)).position.z =
+      buildings.at(toRespawnBuildings.at(1)).position.z - 30.0f;
+}
+
 void OpenGLWindow::initializeGL() {
-  abcg::glClearColor(0, 0, 0, 1);
+  abcg::glClearColor(0.529f, 0.807f, 0.921f, 1);
 
   // Enable depth buffering
   abcg::glEnable(GL_DEPTH_TEST);
@@ -30,7 +47,10 @@ void OpenGLWindow::initializeGL() {
 
   m_ground.initializeGL(m_program);
   airplane.initializeGL(m_program, getAssetsPath());
-  building.initializeGL(m_program, getAssetsPath());
+  for (Building& _building : buildings) {
+    fmt::print("Passou\n");
+    _building.initializeGL(m_program, getAssetsPath());
+  }
   resizeGL(getWindowSettings().width, getWindowSettings().height);
 }
 
@@ -51,7 +71,6 @@ void OpenGLWindow::paintGL() {
       abcg::glGetUniformLocation(m_program, "projMatrix")};
   const GLint modelMatrixLoc{
       abcg::glGetUniformLocation(m_program, "modelMatrix")};
-  // const GLint colorLoc{abcg::glGetUniformLocation(m_program, "color")};
 
   // Set uniform variables for viewMatrix and projMatrix
   // These matrices are used for every scene object
@@ -61,17 +80,26 @@ void OpenGLWindow::paintGL() {
                            &m_camera.m_projMatrix[0][0]);
   const GLint normalMatrixLoc{
       abcg::glGetUniformLocation(m_program, "normalMatrix")};
-  const auto modelViewMatrix{glm::mat3(m_camera.m_viewMatrix * m_camera.m_projMatrix)};
+  const auto modelViewMatrix{
+      glm::mat3(m_camera.m_viewMatrix * m_camera.m_projMatrix)};
   glm::mat3 normalMatrix{glm::inverseTranspose(modelViewMatrix)};
 
   abcg::glUniformMatrix3fv(normalMatrixLoc, 1, GL_FALSE, &normalMatrix[0][0]);
 
   airplane.paintGL();
-  building.paintGL();
-  // m_camera.follow(glm::vec3(.0f, .0f, .0f));
-  // Draw ground
   m_ground.paintGL();
 
+  std::vector<int> toRespawnIndexes{};
+  for (int i : iter::range(buildings.size())) {
+    if (buildings.at(i).position.z > airplane.position.z + 3)
+      toRespawnIndexes.push_back(i);
+  }
+
+  if (!toRespawnIndexes.empty()) respawnBuildings(toRespawnIndexes);
+
+  for (Building& _building : buildings) {
+    _building.paintGL();
+  }
   abcg::glUseProgram(0);
 }
 
@@ -87,7 +115,7 @@ void OpenGLWindow::resizeGL(int width, int height) {
 void OpenGLWindow::terminateGL() {
   m_ground.terminateGL();
   airplane.terminateGL();
-  building.terminateGL();
+  for (auto _building : buildings) _building.terminateGL();
   abcg::glDeleteProgram(m_program);
 }
 void OpenGLWindow::update() {
