@@ -18,25 +18,53 @@ void OpenGLWindow::handleEvent(SDL_Event& event) {
   globalInput.handleEvent(event);
 }
 
-void OpenGLWindow::respawnBuildings(std::vector<int> toRespawnBuildings) {
-  fmt::print("[OpenGLWindow][respawnBuildings] started\n");
+bool reactsCollision(Rectangle r1, Rectangle r2) {
+  // are the sides of one rectangle touching the other?
+
+  if (r1.coord.x + r1.size.x >= r2.coord.x &&  // r1 right edge past r2 left
+      r1.coord.x <= r2.coord.x + r2.size.x &&  // r1 left edge past r2 right
+      r1.coord.y + r1.size.y >= r2.coord.y &&  // r1 top edge past r2 bottom
+      r1.coord.y <= r2.coord.y + r2.size.y) {  // r1 bottom edge past r2 top
+    return true;
+  }
+  return false;
+}
+
+void OpenGLWindow::respawnBuildings() {
   int newXPositionFirstItem = (rand() % 3) - 1;
   int newXPositionSecondItem = (rand() % 3) - 1;
   while (newXPositionFirstItem == newXPositionSecondItem)
     newXPositionSecondItem = (rand() % 3) - 1;
 
-  buildings.at(toRespawnBuildings.at(0)).position.x =
-      newXPositionFirstItem * 1.15f;
-  buildings.at(toRespawnBuildings.at(0)).position.z =
-      buildings.at(toRespawnBuildings.at(0)).position.z - 30.0f;
-  buildings.at(toRespawnBuildings.at(1)).position.x =
-      newXPositionSecondItem * 1.15f;
-  buildings.at(toRespawnBuildings.at(1)).position.z =
-      buildings.at(toRespawnBuildings.at(1)).position.z - 30.0f;
+  BuildingDuple building = buildings.front();
+  buildings.pop_front();
+
+  building.building1.position.x = newXPositionFirstItem * 1.15f;
+  building.building1.position.z = building.building1.position.z - 30.0f;
+  building.building2.position.x = newXPositionSecondItem * 1.15f;
+  building.building2.position.z = building.building2.position.z - 30.0f;
+  buildings.push_back(building);
+}
+
+void OpenGLWindow::resetBuildings() {
+  int i = 0;
+  for (BuildingDuple& building : buildings) {
+    int newXPositionFirstItem = (rand() % 3) - 1;
+    int newXPositionSecondItem = (rand() % 3) - 1;
+    while (newXPositionFirstItem == newXPositionSecondItem)
+      newXPositionSecondItem = (rand() % 3) - 1;
+
+    building.building1.initGame(
+        glm::vec3(newXPositionFirstItem * 1.15f, 0, (-10.0f * i)));
+    building.building2.initGame(
+        glm::vec3(newXPositionSecondItem * 1.15f, 0, (-10.0f * i)));
+    i++;
+  }
 }
 
 void OpenGLWindow::spacePress() {
   if (gameState.state == 0) {
+    resetBuildings();
     airplane.initGame();
     gameState.state = 1;
   }
@@ -57,8 +85,18 @@ void OpenGLWindow::initializeGL() {
 
   m_ground.initializeGL(m_program);
   airplane.initializeGL(m_program, getAssetsPath());
-  for (Building& _building : buildings) {
-    fmt::print("Passou\n");
+
+  buildings.push_back(
+      BuildingDuple{.building1 = Building{glm::vec3(0, 0, .0f)},
+                    .building2 = Building{glm::vec3(1.15f, 0.0f, .0f)}});
+  buildings.push_back(
+      BuildingDuple{.building1 = Building{glm::vec3(-1.15f, 0, -10.0f)},
+                    .building2 = Building{glm::vec3(1.15f, 0, -10.0f)}});
+  buildings.push_back(
+      BuildingDuple{.building1 = Building{glm::vec3(-1.15f, 0, -20.0f)},
+                    .building2 = Building{glm::vec3(0, 0, -20.0f)}});
+
+  for (BuildingDuple& _building : buildings) {
     _building.initializeGL(m_program, getAssetsPath());
   }
   resizeGL(getWindowSettings().width, getWindowSettings().height);
@@ -99,15 +137,33 @@ void OpenGLWindow::paintGL() {
   airplane.paintGL(gameState);
   m_ground.paintGL();
 
-  std::vector<int> toRespawnIndexes{};
-  for (int i : iter::range(buildings.size())) {
-    if (buildings.at(i).position.z > airplane.position.z + 3)
-      toRespawnIndexes.push_back(i);
+  fmt::print("--> ({}, {}) \n", airplane.colisionRect.toString(),
+             buildings.front().building1.colisionRect.toString());
+
+  int airplaneZPositionFloor = floor(airplane.position.z);
+
+  // Only check colision with airplane is near to 10 multiples
+  if (airplaneZPositionFloor < 0 &&
+      (airplaneZPositionFloor % 9 == 0 || airplaneZPositionFloor % 10 == 0 ||
+       airplaneZPositionFloor % 11 == 0)) {
+    fmt::print("Colision[1]: {}\n",
+               reactsCollision(buildings.front().building1.colisionRect,
+                               airplane.colisionRect));
+    fmt::print("Colision[2]: {}\n",
+               reactsCollision(buildings.front().building2.colisionRect,
+                               airplane.colisionRect));
+    if (reactsCollision(buildings.front().building1.colisionRect,
+                        airplane.colisionRect) ||
+        reactsCollision(buildings.front().building2.colisionRect,
+                        airplane.colisionRect)) {
+      gameState.state = 0;
+    }
   }
 
-  if (!toRespawnIndexes.empty()) respawnBuildings(toRespawnIndexes);
+  if (buildings.front().building1.position.z > airplane.position.z + 3)
+    respawnBuildings();
 
-  for (Building& _building : buildings) {
+  for (BuildingDuple& _building : buildings) {
     _building.paintGL();
   }
   abcg::glUseProgram(0);
@@ -138,3 +194,6 @@ void OpenGLWindow::update() {
 
   m_camera.follow(airplane.position);
 }
+
+// bool reactsCollision(float r1x, float r1y, float r1w, float r1h, float r2x,
+// float r2y, float r2w, float r2h)

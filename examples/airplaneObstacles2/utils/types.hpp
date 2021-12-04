@@ -1,6 +1,7 @@
 #ifndef UTILS_TYPES_HPP_
 #define UTILS_TYPES_HPP_
 #include <glm/gtx/hash.hpp>
+#include <fmt/core.h>
 
 struct Vertex {
   glm::vec3 position{};
@@ -22,6 +23,15 @@ struct GameState{
    * 2 = Lose game state
   **/
   int state{0};
+};
+
+struct Rectangle {
+  glm::vec2 coord;
+  glm::vec2 size;
+
+  std::string toString(){
+    return fmt::format("Coord: ({}, {}) Size: ({}, {})", coord.x, coord.y, size.x, size.y);
+  }
 };
 
 #endif

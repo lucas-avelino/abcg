@@ -14,6 +14,7 @@ class Airplane {
   void terminateGL();
   void initGame();
   glm::vec3 position{.0f, 1.0f, 0.0f};
+  Rectangle colisionRect;
 
  private:
   GLuint VAO{};
@@ -61,12 +62,15 @@ class Airplane {
   float actualPosition{0};
   float curveVelocity{0.003f};
   int64_t movementStart{0};
-  const float positionModifier{1.25f};
+  const float positionModifier{1.15f};
   const float curveVelocitybase{0.003f};
 
   //Forward Movement
   float aceleration{-0.25f};
   float velocity{-2.0f};
   float forwardInitialPosition{30.0f};
+
+  //Props
+  float scale{0.00065f};
 };
 #endif

@@ -1,6 +1,7 @@
 #ifndef OPENGLWINDOW_HPP_
 #define OPENGLWINDOW_HPP_
 
+#include <list>
 #include <vector>
 
 #include "abcg.hpp"
@@ -35,18 +36,12 @@ class OpenGLWindow : public abcg::OpenGLWindow {
 
   Ground m_ground;
   Airplane airplane;
-  std::vector<Building> buildings{Building{glm::vec3(0, 0, -10.0f)},
-                                  Building{glm::vec3(1.15f, 0.0f, -10.0f)},
-                                  Building{glm::vec3(-1.15f, 0, -20.0f)},
-                                  Building{glm::vec3(1.15f, 0, -20.0f)},
-                                  Building{glm::vec3(-1.15f, 0, -30.0f)},
-                                  Building{glm::vec3(0, 0, -30.0f)}
-
-  };
+  std::list<BuildingDuple> buildings{ };
   void update();
 
   // Building spawn logic
-  void respawnBuildings(std::vector<int> toRespawnBuildings);
+  void respawnBuildings();
+  void resetBuildings();
 
   // GameState
   GameState gameState{.state = 0};

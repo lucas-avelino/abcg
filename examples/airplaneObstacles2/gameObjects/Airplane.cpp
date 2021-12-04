@@ -354,7 +354,7 @@ void Airplane::paintGL(GameState gameSate) {
 
   model = glm::translate(model, position);
   model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1, 0, 0));
-  model = glm::scale(model, glm::vec3(0.0008f));
+  model = glm::scale(model, glm::vec3(0.00065f));
 
   abcg::glUniformMatrix4fv(modelMatrixLoc, 1, GL_FALSE, &model[0][0]);
   abcg::glUniform4f(colorLoc, 1.0f, 1.0f, 1.0f, 1.0f);
@@ -370,7 +370,7 @@ void Airplane::paintGL(GameState gameSate) {
     min.y = std::min(min.y, vertex.position.y);
     min.z = std::min(min.z, vertex.position.z);
   }
-  airplaneSize = max - min;
+  airplaneSize = (max - min) * scale;
 }
 
 void Airplane::move() {
@@ -401,6 +401,12 @@ void Airplane::move() {
         newPosition < targetPosition ? targetPosition : newPosition;
     position.x = (actualPosition * positionModifier);
   }
+
+  glm::vec3 normalizedPosition = position - (airplaneSize / 2.0f);
+
+  colisionRect = Rectangle{
+      .coord = glm::vec2(normalizedPosition.x, normalizedPosition.z),
+      .size = glm::vec2(airplaneSize.x, airplaneSize.z)};
 }
 
 void Airplane::initGame() {

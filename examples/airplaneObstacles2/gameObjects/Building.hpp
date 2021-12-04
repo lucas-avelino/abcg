@@ -5,17 +5,21 @@
 
 #include "../utils/types.hpp"
 #include "abcg.hpp"
+#include <fmt/core.h>
 
 class Building {
  public:
-  Building(glm::vec3 position){
-    this->position = position;
-  };
+  Building(glm::vec3 position) { this->position = position; };
   void initializeGL(GLuint program, std::string assetsPath);
   void paintGL();
   void resizeGL(int width, int height);
   void terminateGL();
+  void initGame( glm::vec3 position);
   glm::vec3 position{.0f, .5f, 0.0f};
+  Rectangle colisionRect;
+  std::string toString(){
+    return fmt::format("[Building] position ({}, {}, {})", position.x, position.y, position.z);
+  };
 
  private:
   std::vector<GLuint> VAO{};
@@ -53,5 +57,29 @@ class Building {
 
   bool m_hasNormals{false};
   bool m_hasTexCoords{false};
+  
+  //
+  
 };
+
+struct BuildingDuple {
+  Building building1;
+  Building building2;
+
+  void paintGL() {
+    building1.paintGL();
+    building2.paintGL();
+  };
+
+  void initializeGL(GLuint program, std::string assetsPath) {
+    building1.initializeGL(program, assetsPath);
+    building2.initializeGL(program, assetsPath);
+  };
+
+  void terminateGL() {
+    building1.terminateGL();
+    building2.terminateGL();
+  };
+};
+
 #endif

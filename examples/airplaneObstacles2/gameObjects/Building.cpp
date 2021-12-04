@@ -65,6 +65,10 @@ void Building::createBuffers() {
   fmt::print("Created Buffers\n");
 }
 
+void Building::initGame(glm::vec3 position){
+  this->position = position;
+}
+
 void Building::setupVAO(int groupOffset) {
   // for (const auto groupOffset : iter::range<int>(0, verticeGroups.size(), 1))
   // {
@@ -122,9 +126,10 @@ void Building::initializeGL(GLuint _program, std::string assetsPath) {
   // setupVAO();
   rederingTypeLocale = abcg::glGetUniformLocation(program, "rederingType");
 
-  zeroTime = duration_cast<std::chrono::milliseconds>(
-                 std::chrono::system_clock::now().time_since_epoch())
-                 .count();
+  colisionRect =
+      Rectangle{.coord = glm::vec2(position.x - 0.575, position.z - 0.575),
+                .size = glm::vec2(1.15f)};
+  // 0.575
 }
 
 void Building::loadModelFromFile(std::string_view path,
@@ -338,7 +343,9 @@ void Building::paintGL() {
   model = glm::scale(model, glm::vec3(0.0005f));
   abcg::glUniformMatrix4fv(abcg::glGetUniformLocation(program, "modelMatrix"),
                            1, GL_FALSE, &model[0][0]);
-
+  colisionRect =
+      Rectangle{.coord = glm::vec2(position.x - 0.575, position.z - 0.575),
+                .size = glm::vec2(1.15f)};
   for (const auto groupOffset : iter::range(verticeGroups.size())) {
     setupVAO(groupOffset);
     abcg::glActiveTexture(GL_TEXTURE0);
