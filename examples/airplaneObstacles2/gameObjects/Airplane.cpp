@@ -371,12 +371,13 @@ void Airplane::move() {
   int64_t actualTime = duration_cast<std::chrono::milliseconds>(
                            std::chrono::system_clock::now().time_since_epoch())
                            .count();
-  int64_t timeElapsed = actualTime - zeroTime;
+  float timeElapsed = (actualTime - zeroTime) / 1000.0f;
 
   // position
-  float r = 3.0f;
-  // position.x = r * cosf(glm::radians(timeElapsed * -0.05));
-  position.z = (timeElapsed * -0.002f) + 30;
+  position.z = ((timeElapsed * timeElapsed * aceleration) / 2) +
+               (timeElapsed * velocity) + forwardInitialPosition;
+
+  curveVelocity = curveVelocitybase + (curveVelocitybase * timeElapsed / 10);
 
   if (targetPosition > actualPosition) {
     float newPosition =

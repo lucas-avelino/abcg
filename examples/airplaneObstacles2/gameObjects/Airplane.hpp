@@ -60,6 +60,12 @@ class Airplane {
   float actualPosition{0};
   float positionModifier{1.25f};
   float curveVelocity{0.003f};
+  float curveVelocitybase{0.003f};
   int64_t movementStart{0};
+
+  //Forward Movement
+  float aceleration{-0.25f};
+  float velocity{-2.0f};
+  float forwardInitialPosition{30.0f};
 };
 #endif
