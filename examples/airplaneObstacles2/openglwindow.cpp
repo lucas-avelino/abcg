@@ -30,6 +30,7 @@ void OpenGLWindow::initializeGL() {
 
   m_ground.initializeGL(m_program);
   airplane.initializeGL(m_program, getAssetsPath());
+  building.initializeGL(m_program, getAssetsPath());
   resizeGL(getWindowSettings().width, getWindowSettings().height);
 }
 
@@ -66,6 +67,7 @@ void OpenGLWindow::paintGL() {
   abcg::glUniformMatrix3fv(normalMatrixLoc, 1, GL_FALSE, &normalMatrix[0][0]);
 
   airplane.paintGL();
+  building.paintGL();
   // m_camera.follow(glm::vec3(.0f, .0f, .0f));
   // Draw ground
   m_ground.paintGL();
@@ -85,6 +87,7 @@ void OpenGLWindow::resizeGL(int width, int height) {
 void OpenGLWindow::terminateGL() {
   m_ground.terminateGL();
   airplane.terminateGL();
+  building.terminateGL();
   abcg::glDeleteProgram(m_program);
 }
 void OpenGLWindow::update() {

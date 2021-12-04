@@ -59,9 +59,10 @@ vec4 BlinnPhong(vec3 N, vec3 L, vec3 V, vec2 texCoord) {
 void main() {
   vec4 color;
   if(rederingType == 0){
+    // vec2 texCoord = vec2(fragTexCoord.x/2, fragTexCoord.y);
     vec2 texCoord = fragTexCoord;
-    // color = BlinnPhong(fragN, fragL, fragV, texCoord);
-    outColor = texture(diffuseTex, texCoord);
+    outColor = BlinnPhong(fragN, fragL, fragV, texCoord);
+    // outColor = texture(diffuseTex, texCoord);
   }else{
     outColor = fragColor;
   }

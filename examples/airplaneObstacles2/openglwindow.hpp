@@ -7,6 +7,7 @@
 #include "camera.hpp"
 #include "ground.hpp"
 #include "gameObjects/airplane.hpp"
+#include "gameObjects/building.hpp"
 
 class OpenGLWindow : public abcg::OpenGLWindow {
  protected:
@@ -33,6 +34,7 @@ class OpenGLWindow : public abcg::OpenGLWindow {
 
   Ground m_ground;
   Airplane airplane;
+  Building building;
 
   void update();
 };

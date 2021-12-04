@@ -15,39 +15,40 @@ class Building {
   glm::vec3 position{.0f, .5f, 0.0f};
 
  private:
-  GLuint VAO{};
-  GLuint VBO{};
-  GLuint EBO{};
+  std::vector<GLuint> VAO{};
+  std::vector<GLuint> VBO{};
+  std::vector<GLuint> EBO{};
   GLuint program{};
 
   glm::vec3 rotate{0.0f, 1.0f, .0f};
 
-  std::vector<Vertex> vertices;
-  std::vector<GLuint> indices;
+  std::vector<std::vector<Vertex>> verticeGroups;
+  std::vector<std::vector<GLuint>> indices;
   int64_t zeroTime{0};
-  glm::vec3 min;
-  glm::vec3 max;
-  glm::vec3 airplaneSize;
+  std::vector<glm::vec3> min;
+  std::vector<glm::vec3> max;
+  std::vector<glm::vec3> airplaneSize;
 
-  GLuint m_diffuseTexture{};
+  std::vector<GLuint> m_diffuseTexture{};
   GLint rederingTypeLocale{};
 
   void loadModelFromFile(std::string_view path, std::string texturePath);
-  void loadDiffuseTexture(std::string_view path);
+  void loadDiffuseTexture(std::string_view path, int index);
 
   void move();
   void createBuffers();
-  void setupVAO();
+  void setupVAO(int groupOffset);
   void setLightConfig();
   void computeNormals();
 
   glm::vec4 m_Ia{1.0f};
   glm::vec4 m_Id{1.0f};
   glm::vec4 m_Is{1.0f};
-  glm::vec4 m_Ka;
-  glm::vec4 m_Kd;
-  glm::vec4 m_Ks;
-  float m_shininess{};
+  std::vector<glm::vec4> m_Ka;
+  std::vector<glm::vec4> m_Kd;
+  std::vector<glm::vec4> m_Ks;
+  std::vector<float> m_shininess{};
+
   bool m_hasNormals{false};
   bool m_hasTexCoords{false};
 };

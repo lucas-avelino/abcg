@@ -12,7 +12,7 @@ class Airplane {
   void paintGL();
   void resizeGL(int width, int height);
   void terminateGL();
-  glm::vec3 position{.0f, .5f, 0.0f};
+  glm::vec3 position{.0f, 1.0f, 0.0f};
 
  private:
   GLuint VAO{};
@@ -50,5 +50,9 @@ class Airplane {
   float m_shininess{};
   bool m_hasNormals{false};
   bool m_hasTexCoords{false};
+
+  //Controlls
+  void left();
+  void rigth();
 };
 #endif

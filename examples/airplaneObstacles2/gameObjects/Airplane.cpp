@@ -95,9 +95,9 @@ void Airplane::setupVAO() {
 void Airplane::initializeGL(GLuint program, std::string assetsPath) {
   this->program = program;
 
-  loadDiffuseTexture(assetsPath + "airplane_body_diffuse_v1.jpg");
-  loadModelFromFile(assetsPath + "11805_airplane_v2_L2.obj",
-                    assetsPath + "airplane_body_diffuse_v1.jpg");
+  loadDiffuseTexture(assetsPath + "airplane/texture.jpg");
+  loadModelFromFile(assetsPath + "airplane/11805_airplane_v2_L2.obj",
+                    assetsPath + "airplane/");
 
   createBuffers();
   setupVAO();
@@ -235,8 +235,8 @@ void Airplane::setLightConfig() {
   const GLint KdLoc{abcg::glGetUniformLocation(program, "Kd")};
   const GLint KsLoc{abcg::glGetUniformLocation(program, "Ks")};
 
-  const auto lightDirRotated{glm::angleAxis(90.0f, glm::vec3(0, 1, 0)) *
-                             glm::vec4(-1.0f, -1.0f, -1.0f, 0.0f)};
+  const auto lightDirRotated{glm::angleAxis(45.0f, glm::vec3(0, 1, 0)) *
+                             glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)};
   abcg::glUniform4fv(lightDirLoc, 1, &lightDirRotated.x);
   abcg::glUniform4fv(IaLoc, 1, &m_Ia.x);
   abcg::glUniform4fv(IdLoc, 1, &m_Id.x);
@@ -313,9 +313,11 @@ void Airplane::paintGL() {
 
   model = glm::translate(model, position);
   model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1, 0, 0));
+  // model = glm::rotate(model, glm::radians(-25.0f), glm::vec3(0, 1, 0));
   // model =
-  //     glm::rotate(model, glm::radians(timeElapsed * 0.05f), glm::vec3(0, 0, 1));
-  model = glm::scale(model, glm::vec3(0.001f));
+  //     glm::rotate(model, glm::radians(timeElapsed * 0.05f), glm::vec3(0, 0,
+  //     1));
+  model = glm::scale(model, glm::vec3(0.0008f));
 
   abcg::glUniformMatrix4fv(modelMatrixLoc, 1, GL_FALSE, &model[0][0]);
   abcg::glUniform4f(colorLoc, 1.0f, 1.0f, 1.0f, 1.0f);
@@ -343,7 +345,7 @@ void Airplane::move() {
   // position
   float r = 3.0f;
   // position.x = r * cosf(glm::radians(timeElapsed * -0.05));
-  position.z = timeElapsed * -0.002f;
+  position.z = (timeElapsed * -0.002f) + 30;
 }
 
 void Airplane::terminateGL() {

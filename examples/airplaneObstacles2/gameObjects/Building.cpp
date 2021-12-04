@@ -27,37 +27,57 @@ struct hash<Vertex> {
    // namespace std
 
 void Building::createBuffers() {
-  // Delete previous buffers
-  abcg::glDeleteBuffers(1, &EBO);
-  abcg::glDeleteBuffers(1, &VBO);
+  fmt::print("passou\n");
 
-  // VBO
-  abcg::glGenBuffers(1, &VBO);
-  abcg::glBindBuffer(GL_ARRAY_BUFFER, VBO);
-  abcg::glBufferData(GL_ARRAY_BUFFER, sizeof(vertices[0]) * vertices.size(),
-                     vertices.data(), GL_STATIC_DRAW);
-  abcg::glBindBuffer(GL_ARRAY_BUFFER, 0);
+  for (const auto offset : iter::range<int>(0, verticeGroups.size(), 1)) {
+    VBO.push_back(0);
+    EBO.push_back(0);
+  }
+  fmt::print("verticeGroups {} \n", verticeGroups.size());
+  for (const auto offset : iter::range<int>(0, verticeGroups.size(), 1)) {
+    // fmt::print("passou {} \n", offset);
+    abcg::glDeleteBuffers(1, &EBO[offset]);
+    abcg::glDeleteBuffers(1, &VBO[offset]);
 
-  // EBO
-  abcg::glGenBuffers(1, &EBO);
-  abcg::glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-  abcg::glBufferData(GL_ELEMENT_ARRAY_BUFFER,
-                     sizeof(indices[0]) * indices.size(), indices.data(),
-                     GL_STATIC_DRAW);
-  abcg::glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    // VBO
+    abcg::glGenBuffers(1, &VBO[offset]);
+    abcg::glBindBuffer(GL_ARRAY_BUFFER, VBO.at(offset));
+    // fmt::print("passou {} \n", offset);
+    abcg::glBufferData(
+        GL_ARRAY_BUFFER,
+        sizeof(verticeGroups[offset][0]) * verticeGroups[offset].size(),
+        verticeGroups[offset].data(), GL_STATIC_DRAW);
+    abcg::glBindBuffer(GL_ARRAY_BUFFER, 0);
+    // fmt::print("passou {} \n", indices[offset].size());
+    // EBO
+
+    abcg::glGenBuffers(1, &EBO[offset]);
+    abcg::glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO[offset]);
+    abcg::glBufferData(GL_ELEMENT_ARRAY_BUFFER,
+                       sizeof(indices[offset][0]) * indices[offset].size(),
+                       indices[offset].data(), GL_STATIC_DRAW);
+    abcg::glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    // fmt::print("passou {} \n", offset);
+  }
+  for (const auto groupOffset : iter::range<int>(0, verticeGroups.size(), 1)) {
+    VAO.push_back(0);
+  }
+  fmt::print("Created Buffers\n");
 }
 
-void Building::setupVAO() {
-  // Release previous VAO
-  abcg::glDeleteVertexArrays(1, &VAO);
+void Building::setupVAO(int groupOffset) {
+  // for (const auto groupOffset : iter::range<int>(0, verticeGroups.size(), 1))
+  // {
+  abcg::glDeleteVertexArrays(1, &VAO[groupOffset]);
 
   // Create VAO
-  abcg::glGenVertexArrays(1, &VAO);
-  abcg::glBindVertexArray(VAO);
+  abcg::glGenVertexArrays(1, &VAO[groupOffset]);
+
+  abcg::glBindVertexArray(VAO[groupOffset]);
 
   // Bind EBO and VBO
-  abcg::glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-  abcg::glBindBuffer(GL_ARRAY_BUFFER, VBO);
+  abcg::glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO[groupOffset]);
+  abcg::glBindBuffer(GL_ARRAY_BUFFER, VBO[groupOffset]);
 
   // Bind vertex attributes
   const GLint positionAttribute{
@@ -90,17 +110,18 @@ void Building::setupVAO() {
   // End of binding
   abcg::glBindBuffer(GL_ARRAY_BUFFER, 0);
   abcg::glBindVertexArray(0);
+  // }
 }
 
 void Building::initializeGL(GLuint program, std::string assetsPath) {
   this->program = program;
 
-  loadDiffuseTexture(assetsPath + "airplane_body_diffuse_v1.jpg");
-  loadModelFromFile(assetsPath + "11805_airplane_v2_L2.obj",
-                    assetsPath + "airplane_body_diffuse_v1.jpg");
+  // loadDiffuseTexture(assetsPath + "airplane_body_diffuse_v1.jpg");
+  loadModelFromFile(assetsPath + "building/Building.obj",
+                    assetsPath + "building/");
 
   createBuffers();
-  setupVAO();
+  // setupVAO();
   rederingTypeLocale = abcg::glGetUniformLocation(program, "rederingType");
 
   // resizeGL(getWindowSettings().width, getWindowSettings().height);
@@ -133,19 +154,27 @@ void Building::loadModelFromFile(std::string_view path,
   const auto& shapes{reader.GetShapes()};
   const auto& materials{reader.GetMaterials()};
 
-  vertices.clear();
+  verticeGroups.clear();
   indices.clear();
 
   m_hasNormals = false;
   m_hasTexCoords = false;
 
   // A key:value map with key=Vertex and value=index
-  std::unordered_map<Vertex, GLuint> hash{};
+  std::vector<std::unordered_map<Vertex, GLuint>> hash{};
 
+  int i = 0;
+  fmt::print("{}\n", shapes.size());
   // Loop over shapes
   for (const auto& shape : shapes) {
+    fmt::print("Building - shape\n");
+    hash.push_back(std::unordered_map<Vertex, GLuint>());
+    indices.push_back(std::vector<GLuint>());
+    verticeGroups.push_back(std::vector<Vertex>());
+    fmt::print("--> {}\n", verticeGroups.size());
     // Loop over indices
     for (const auto offset : iter::range(shape.mesh.indices.size())) {
+      // fmt::print("Building - mesh\n");
       // Access to vertex
       const tinyobj::index_t index{shape.mesh.indices.at(offset)};
 
@@ -181,47 +210,63 @@ void Building::loadModelFromFile(std::string_view path,
       vertex.position = {vx, vy, vz};
       vertex.normal = {nx, ny, nz};
       vertex.texCoord = {tu, tv};
-
       // If hash doesn't contain this vertex
-      if (hash.count(vertex) == 0) {
+      if (hash.at(i).count(vertex) == 0) {
         // Add this index (size of vertices)
-        hash[vertex] = vertices.size();
+        hash.at(i)[vertex] = verticeGroups.at(i).size();
         // Add this vertex
-        vertices.push_back(vertex);
+        // verticeGroups.push_back(std::vector<Vertex>());
+        verticeGroups.at(i).push_back(vertex);
       }
-
-      indices.push_back(hash[vertex]);
+      indices.at(i).push_back(hash.at(i)[vertex]);
     }
+    fmt::print("Vertex: {}\n", verticeGroups.at(i).size());
+    fmt::print("test: {} ", shape.mesh.material_ids[0]);
+    fmt::print("material_ids(size): {}   test: {}\n",
+               shape.mesh.material_ids.size(), shape.mesh.indices.size());
+    i++;
   }
 
   // Use properties of first material, if available
   if (!materials.empty()) {
-    const auto& mat{materials.at(0)};  // First material
-    m_Ka = glm::vec4(mat.ambient[0], mat.ambient[1], mat.ambient[2], 1);
-    m_Kd = glm::vec4(mat.diffuse[0], mat.diffuse[1], mat.diffuse[2], 1);
-    m_Ks = glm::vec4(mat.specular[0], mat.specular[1], mat.specular[2], 1);
-    m_shininess = mat.shininess;
+    for (const auto groupOffset : iter::range(materials.size())) {
+      fmt::print("loading textures {}/{}\n", groupOffset, materials.size());
+      const auto& mat{materials.at(groupOffset)};  // First material
+      m_Ka.push_back(
+          glm::vec4(mat.ambient[0], mat.ambient[1], mat.ambient[2], 1));
+      m_Kd.push_back(
+          glm::vec4(mat.diffuse[0], mat.diffuse[1], mat.diffuse[2], 1));
+      m_Ks.push_back(
+          glm::vec4(mat.specular[0], mat.specular[1], mat.specular[2], 1));
+      m_shininess.push_back(mat.shininess);
 
-    if (!mat.diffuse_texname.empty())
-      loadDiffuseTexture(assetsPath + mat.diffuse_texname);
+      if (!mat.diffuse_texname.empty()) {
+        const auto texture =
+            abcg::opengl::loadTexture(assetsPath + mat.diffuse_texname);
+        m_diffuseTexture.push_back(texture);
+      } else {
+        m_diffuseTexture.push_back(0);
+      }
+    }
   } else {
     // Default values
-    m_Ka = {0.1f, 0.1f, 0.1f, 1.0f};
-    m_Kd = {0.7f, 0.7f, 0.7f, 1.0f};
-    m_Ks = {1.0f, 1.0f, 1.0f, 1.0f};
-    m_shininess = 25.0f;
+    // m_Ka = {0.1f, 0.1f, 0.1f, 1.0f};
+    // m_Kd = {0.7f, 0.7f, 0.7f, 1.0f};
+    // m_Ks = {1.0f, 1.0f, 1.0f, 1.0f};
+    // m_shininess = 25.0f;
   }
-
+  fmt::print("textures loaded\n");
   if (!m_hasNormals) {
     computeNormals();
   }
+  fmt::print("normals computed\n");
 }
 
-void Building::loadDiffuseTexture(std::string_view path) {
+void Building::loadDiffuseTexture(std::string_view path, int index) {
   // if (!std::filesystem::exists(path)) return;
 
-  abcg::glDeleteTextures(1, &m_diffuseTexture);
-  m_diffuseTexture = abcg::opengl::loadTexture(path);
+  abcg::glDeleteTextures(1, &m_diffuseTexture[index]);
+  m_diffuseTexture.at(index) = abcg::opengl::loadTexture(path);
 }
 
 void Building::setLightConfig() {
@@ -241,97 +286,89 @@ void Building::setLightConfig() {
   abcg::glUniform4fv(IaLoc, 1, &m_Ia.x);
   abcg::glUniform4fv(IdLoc, 1, &m_Id.x);
   abcg::glUniform4fv(IsLoc, 1, &m_Is.x);
-  abcg::glUniform1f(shininessLoc, m_shininess);
-  abcg::glUniform4fv(KaLoc, 1, &m_Ka.x);
-  abcg::glUniform4fv(KdLoc, 1, &m_Kd.x);
-  abcg::glUniform4fv(KsLoc, 1, &m_Ks.x);
+  abcg::glUniform1f(shininessLoc, m_shininess[0]);
+  abcg::glUniform4fv(KaLoc, 1, &m_Ka[0].x);
+  abcg::glUniform4fv(KdLoc, 1, &m_Kd[0].x);
+  abcg::glUniform4fv(KsLoc, 1, &m_Ks[0].x);
 }
 
 void Building::computeNormals() {
+  for (const auto groupOffset : iter::range(verticeGroups.size() - 1)) {
+    for (auto& vertex : verticeGroups[groupOffset]) {
+      vertex.normal = glm::zero<glm::vec3>();
+    }
+
+    // Compute face normals
+    for (const auto offset :
+         iter::range<int>(0, verticeGroups[groupOffset].size() - 3, 3)) {
+      // fmt::print("{}", verticeGroups[groupOffset][0].);
+      // Get face vertices
+      Vertex& a = verticeGroups.at(groupOffset).at(offset);
+      Vertex& b = verticeGroups.at(groupOffset).at(offset + 1);
+      Vertex& c = verticeGroups.at(groupOffset).at(offset + 2);
+
+      // Vertex& b{groupverticeGroups[groupOffset].at(indices.at(offset + 1))};
+      // Vertex& c{verticeGroups[groupOffset].at(indices.at(offset + 2))};
+
+      // Compute normal
+      const auto edge1{b.position - a.position};
+      const auto edge2{c.position - b.position};
+      const glm::vec3 normal{glm::cross(edge1, edge2)};
+
+      // Accumulate on vertices
+      a.normal += normal;
+      b.normal += normal;
+      c.normal += normal;
+    }
+
+    // Normalize
+    for (auto& vertex : verticeGroups[groupOffset]) {
+      vertex.normal = glm::normalize(vertex.normal);
+    }
+
+    m_hasNormals = true;
+  }
   // Clear previous vertex normals
-  for (auto& vertex : vertices) {
-    vertex.normal = glm::zero<glm::vec3>();
-  }
-
-  // Compute face normals
-  for (const auto offset : iter::range<int>(0, indices.size(), 3)) {
-    // Get face vertices
-    Vertex& a{vertices.at(indices.at(offset + 0))};
-    Vertex& b{vertices.at(indices.at(offset + 1))};
-    Vertex& c{vertices.at(indices.at(offset + 2))};
-
-    // Compute normal
-    const auto edge1{b.position - a.position};
-    const auto edge2{c.position - b.position};
-    const glm::vec3 normal{glm::cross(edge1, edge2)};
-
-    // Accumulate on vertices
-    a.normal += normal;
-    b.normal += normal;
-    c.normal += normal;
-  }
-
-  // Normalize
-  for (auto& vertex : vertices) {
-    vertex.normal = glm::normalize(vertex.normal);
-  }
-
-  m_hasNormals = true;
 }
 
 void Building::paintGL() {
   abcg::glUseProgram(program);
+  for (const auto groupOffset : iter::range(verticeGroups.size())) {
+    setupVAO(groupOffset);
+    abcg::glActiveTexture(GL_TEXTURE0);
+    fmt::print("Texture {}\n", groupOffset % 11);
+    if (m_diffuseTexture[groupOffset % 11] != 0)
+      abcg::glBindTexture(GL_TEXTURE_2D, m_diffuseTexture[groupOffset % 11]);
+    abcg::glUniform1i(rederingTypeLocale, 0);
 
-  abcg::glActiveTexture(GL_TEXTURE0);
-  abcg::glBindTexture(GL_TEXTURE_2D, m_diffuseTexture);
-  abcg::glUniform1i(rederingTypeLocale, 0);
+    // Set minification and magnification parameters
+    abcg::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    abcg::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-  // Set minification and magnification parameters
-  abcg::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-  abcg::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    // Set texture wrapping parameters
+    abcg::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    abcg::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
-  // Set texture wrapping parameters
-  abcg::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-  abcg::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    // Set  light vars
+    setLightConfig();
+    abcg::glUniform1i(abcg::glGetUniformLocation(program, "diffuseTex"), 0);
 
-  // Set  light vars
-  setLightConfig();
-  abcg::glUniform1i(abcg::glGetUniformLocation(program, "diffuseTex"), 0);
+    const GLint modelMatrixLoc{
+        abcg::glGetUniformLocation(program, "modelMatrix")};
+    const GLint colorLoc{abcg::glGetUniformLocation(program, "color")};
 
-  const GLint modelMatrixLoc{
-      abcg::glGetUniformLocation(program, "modelMatrix")};
-  const GLint colorLoc{abcg::glGetUniformLocation(program, "color")};
+    abcg::glBindVertexArray(VAO[groupOffset]);
 
-  abcg::glBindVertexArray(VAO);
-  int64_t actualTime = duration_cast<std::chrono::milliseconds>(
-                           std::chrono::system_clock::now().time_since_epoch())
-                           .count();
+    glm::mat4 model{1.0f};
 
-  int64_t timeElapsed = actualTime - zeroTime;
-  glm::mat4 model{1.0f};
-  move();
+    model = glm::scale(model, glm::vec3(0.0005f));
+    model = glm::translate(model, glm::vec3(0, 0, -15.0f));
 
-  model = glm::translate(model, position);
-  model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1, 0, 0));
-  // model =
-  //     glm::rotate(model, glm::radians(timeElapsed * 0.05f), glm::vec3(0, 0, 1));
-  model = glm::scale(model, glm::vec3(0.001f));
-
-  abcg::glUniformMatrix4fv(modelMatrixLoc, 1, GL_FALSE, &model[0][0]);
-  abcg::glUniform4f(colorLoc, 1.0f, 1.0f, 1.0f, 1.0f);
-  abcg::glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, nullptr);
-
-  max = glm::vec3(std::numeric_limits<float>::lowest());
-  min = glm::vec3(std::numeric_limits<float>::max());
-  for (const auto& vertex : vertices) {
-    max.x = std::max(max.x, vertex.position.x);
-    max.y = std::max(max.y, vertex.position.y);
-    max.z = std::max(max.z, vertex.position.z);
-    min.x = std::min(min.x, vertex.position.x);
-    min.y = std::min(min.y, vertex.position.y);
-    min.z = std::min(min.z, vertex.position.z);
+    abcg::glUniformMatrix4fv(modelMatrixLoc, 1, GL_FALSE, &model[0][0]);
+    abcg::glUniform4f(colorLoc, 1.0f, 1.0f, 1.0f, 1.0f);
+    abcg::glDrawElements(GL_TRIANGLES, indices[groupOffset].size(),
+                         GL_UNSIGNED_INT, nullptr);
   }
-  airplaneSize = max - min;
 }
 
 void Building::move() {
@@ -343,11 +380,13 @@ void Building::move() {
   // position
   float r = 3.0f;
   // position.x = r * cosf(glm::radians(timeElapsed * -0.05));
-  position.z = timeElapsed * -0.002f;
+  // position.z = timeElapsed * -0.002f;
 }
 
 void Building::terminateGL() {
-  abcg::glDeleteBuffers(1, &EBO);
-  abcg::glDeleteBuffers(1, &VBO);
-  abcg::glDeleteVertexArrays(1, &VAO);
+  for (const auto offset : iter::range(verticeGroups.size())) {
+    abcg::glDeleteBuffers(1, &EBO[offset]);
+    abcg::glDeleteBuffers(1, &VBO[offset]);
+    abcg::glDeleteVertexArrays(1, &VAO[offset]);
+  }
 }
