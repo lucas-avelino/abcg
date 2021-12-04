@@ -8,6 +8,7 @@
 #include "gameObjects/airplane.hpp"
 #include "gameObjects/building.hpp"
 #include "ground.hpp"
+#include "utils/types.hpp"
 
 class OpenGLWindow : public abcg::OpenGLWindow {
  protected:
@@ -46,6 +47,11 @@ class OpenGLWindow : public abcg::OpenGLWindow {
 
   // Building spawn logic
   void respawnBuildings(std::vector<int> toRespawnBuildings);
+
+  // GameState
+  GameState gameState{.state = 0};
+
+  void spacePress();
 };
 
 #endif

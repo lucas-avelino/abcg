@@ -9,9 +9,10 @@
 class Airplane {
  public:
   void initializeGL(GLuint program, std::string assetsPath);
-  void paintGL();
+  void paintGL(GameState gameSate);
   void resizeGL(int width, int height);
   void terminateGL();
+  void initGame();
   glm::vec3 position{.0f, 1.0f, 0.0f};
 
  private:
@@ -58,10 +59,10 @@ class Airplane {
   int targetPosition{0};
   float initialPosition{0};
   float actualPosition{0};
-  float positionModifier{1.25f};
   float curveVelocity{0.003f};
-  float curveVelocitybase{0.003f};
   int64_t movementStart{0};
+  const float positionModifier{1.25f};
+  const float curveVelocitybase{0.003f};
 
   //Forward Movement
   float aceleration{-0.25f};

@@ -1,5 +1,5 @@
-#ifndef VERTEX_HPP_
-#define VERTEX_HPP_
+#ifndef UTILS_TYPES_HPP_
+#define UTILS_TYPES_HPP_
 #include <glm/gtx/hash.hpp>
 
 struct Vertex {
@@ -13,6 +13,15 @@ struct Vertex {
            glm::all(glm::epsilonEqual(normal, other.normal, epsilon)) &&
            glm::all(glm::epsilonEqual(texCoord, other.texCoord, epsilon));
   }
+};
+
+struct GameState{
+  /**
+   * 0 = To init
+   * 1 = On game
+   * 2 = Lose game state
+  **/
+  int state{0};
 };
 
 #endif

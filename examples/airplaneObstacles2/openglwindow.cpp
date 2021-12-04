@@ -35,8 +35,18 @@ void OpenGLWindow::respawnBuildings(std::vector<int> toRespawnBuildings) {
       buildings.at(toRespawnBuildings.at(1)).position.z - 30.0f;
 }
 
+void OpenGLWindow::spacePress() {
+  if (gameState.state == 0) {
+    airplane.initGame();
+    gameState.state = 1;
+  }
+}
+
 void OpenGLWindow::initializeGL() {
   abcg::glClearColor(0.529f, 0.807f, 0.921f, 1);
+
+  globalInput.addListener(SDLK_SPACE, SDL_KEYDOWN,
+                          std::bind(&OpenGLWindow::spacePress, this));
 
   // Enable depth buffering
   abcg::glEnable(GL_DEPTH_TEST);
@@ -86,7 +96,7 @@ void OpenGLWindow::paintGL() {
 
   abcg::glUniformMatrix3fv(normalMatrixLoc, 1, GL_FALSE, &normalMatrix[0][0]);
 
-  airplane.paintGL();
+  airplane.paintGL(gameState);
   m_ground.paintGL();
 
   std::vector<int> toRespawnIndexes{};

@@ -142,6 +142,12 @@ void Airplane::initializeGL(GLuint program, std::string assetsPath) {
   zeroTime = duration_cast<std::chrono::milliseconds>(
                  std::chrono::system_clock::now().time_since_epoch())
                  .count();
+  initialPosition = 0;
+  actualPosition = 0;
+  targetPosition = 0;
+  curveVelocity = 0.003f;
+  movementStart = 0;
+  position = glm::vec3(.0f, 1.0f, forwardInitialPosition);
 }
 
 void Airplane::loadModelFromFile(std::string_view path,
@@ -314,7 +320,7 @@ void Airplane::computeNormals() {
   m_hasNormals = true;
 }
 
-void Airplane::paintGL() {
+void Airplane::paintGL(GameState gameSate) {
   abcg::glUseProgram(program);
 
   abcg::glActiveTexture(GL_TEXTURE0);
@@ -344,7 +350,7 @@ void Airplane::paintGL() {
 
   int64_t timeElapsed = actualTime - zeroTime;
   glm::mat4 model{1.0f};
-  move();
+  if (gameSate.state == 1) move();
 
   model = glm::translate(model, position);
   model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1, 0, 0));
@@ -395,6 +401,18 @@ void Airplane::move() {
         newPosition < targetPosition ? targetPosition : newPosition;
     position.x = (actualPosition * positionModifier);
   }
+}
+
+void Airplane::initGame() {
+  zeroTime = duration_cast<std::chrono::milliseconds>(
+                 std::chrono::system_clock::now().time_since_epoch())
+                 .count();
+  initialPosition = 0;
+  actualPosition = 0;
+  targetPosition = 0;
+  curveVelocity = 0.003f;
+  movementStart = 0;
+  position = glm::vec3(.0f, 1.0f, 30.0f);
 }
 
 void Airplane::terminateGL() {
