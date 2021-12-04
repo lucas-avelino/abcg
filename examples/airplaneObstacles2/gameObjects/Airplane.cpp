@@ -11,6 +11,7 @@
 
 #include "../utils/input.hpp"
 #include "abcg.hpp"
+extern Input globalInput;
 
 // Explicit specialization of std::hash for Vertex
 namespace std {
@@ -25,6 +26,39 @@ struct hash<Vertex> {
 };
 }  // namespace std
    // namespace std
+
+// Controlls
+void Airplane::left() {
+  int newPos = actualPosition - 1;
+  newPos = newPos < -1 ? -1 : newPos;
+  targetPosition = newPos;
+  initialPosition = actualPosition;
+  movementStart = duration_cast<std::chrono::milliseconds>(
+                      std::chrono::system_clock::now().time_since_epoch())
+                      .count();
+}
+
+void Airplane::rigth() {
+  int newPos = actualPosition + 1;
+  newPos = newPos > 1 ? 1 : newPos;
+  targetPosition = newPos;
+  initialPosition = actualPosition;
+  movementStart = duration_cast<std::chrono::milliseconds>(
+                      std::chrono::system_clock::now().time_since_epoch())
+                      .count();
+}
+
+// Logic
+void Airplane::bindControlls() {
+  globalInput.addListener(SDLK_a, SDL_KEYDOWN,
+                          std::bind(&Airplane::left, this));
+  // globalInput.addListener(SDLK_SPACE, SDL_KEYUP,
+  //                         std::bind(&Airplane::rigth, this));
+  globalInput.addListener(SDLK_d, SDL_KEYDOWN,
+                          std::bind(&Airplane::rigth, this));
+  // globalInput.addListener(SDLK_SPACE, SDL_KEYUP,
+  //                         std::bind(&Airplane::rigth, this));
+}
 
 void Airplane::createBuffers() {
   // Delete previous buffers
@@ -93,6 +127,7 @@ void Airplane::setupVAO() {
 }
 
 void Airplane::initializeGL(GLuint program, std::string assetsPath) {
+  bindControlls();
   this->program = program;
 
   loadDiffuseTexture(assetsPath + "airplane/texture.jpg");
@@ -313,10 +348,6 @@ void Airplane::paintGL() {
 
   model = glm::translate(model, position);
   model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1, 0, 0));
-  // model = glm::rotate(model, glm::radians(-25.0f), glm::vec3(0, 1, 0));
-  // model =
-  //     glm::rotate(model, glm::radians(timeElapsed * 0.05f), glm::vec3(0, 0,
-  //     1));
   model = glm::scale(model, glm::vec3(0.0008f));
 
   abcg::glUniformMatrix4fv(modelMatrixLoc, 1, GL_FALSE, &model[0][0]);
@@ -346,6 +377,23 @@ void Airplane::move() {
   float r = 3.0f;
   // position.x = r * cosf(glm::radians(timeElapsed * -0.05));
   position.z = (timeElapsed * -0.002f) + 30;
+
+  if (targetPosition > actualPosition) {
+    float newPosition =
+        initialPosition + (curveVelocity * (actualTime - movementStart));
+    actualPosition =
+        newPosition > targetPosition ? targetPosition : newPosition;
+
+    position.x = (actualPosition * positionModifier);
+  }
+
+  if (targetPosition < actualPosition) {
+    float newPosition =
+        initialPosition + (-curveVelocity * (actualTime - movementStart));
+    actualPosition =
+        newPosition < targetPosition ? targetPosition : newPosition;
+    position.x = (actualPosition * positionModifier);
+  }
 }
 
 void Airplane::terminateGL() {

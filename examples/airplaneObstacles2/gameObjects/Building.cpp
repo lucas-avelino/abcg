@@ -336,7 +336,6 @@ void Building::paintGL() {
   for (const auto groupOffset : iter::range(verticeGroups.size())) {
     setupVAO(groupOffset);
     abcg::glActiveTexture(GL_TEXTURE0);
-    fmt::print("Texture {}\n", groupOffset % 11);
     if (m_diffuseTexture[groupOffset % 11] != 0)
       abcg::glBindTexture(GL_TEXTURE_2D, m_diffuseTexture[groupOffset % 11]);
     abcg::glUniform1i(rederingTypeLocale, 0);

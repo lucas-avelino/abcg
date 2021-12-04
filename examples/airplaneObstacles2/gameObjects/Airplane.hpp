@@ -52,7 +52,14 @@ class Airplane {
   bool m_hasTexCoords{false};
 
   //Controlls
+  void bindControlls();
   void left();
   void rigth();
+  int targetPosition{0};
+  float initialPosition{0};
+  float actualPosition{0};
+  float positionModifier{1.25f};
+  float curveVelocity{0.003f};
+  int64_t movementStart{0};
 };
 #endif

@@ -50,6 +50,6 @@ void Camera::pan(float speed) {
 }
 
 void Camera::follow(glm::vec3 position) {
-  m_eye = glm::vec3(0.0f, 2.5f, 2.5f) + position;
-  m_at = glm::vec3(0.0f, 0.5f, 0.0f) + position;
+  m_eye = glm::vec3(-position.x, 2.5f, 2.5f) + position;
+  m_at = glm::vec3(-position.x, 0.5f, 0.0f) + position;
 }
