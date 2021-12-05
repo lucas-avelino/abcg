@@ -265,7 +265,7 @@ void Airplane::loadDiffuseTexture(std::string_view path) {
   m_diffuseTexture = abcg::opengl::loadTexture(path);
 }
 
-void Airplane::setLightConfig() {
+void Airplane::setLightConfig(LightProperties light) {
   const GLint lightDirLoc{
       abcg::glGetUniformLocation(program, "lightDirWorldSpace")};
   const GLint shininessLoc{abcg::glGetUniformLocation(program, "shininess")};
@@ -276,13 +276,13 @@ void Airplane::setLightConfig() {
   const GLint KdLoc{abcg::glGetUniformLocation(program, "Kd")};
   const GLint KsLoc{abcg::glGetUniformLocation(program, "Ks")};
 
-  const auto lightDirRotated{glm::angleAxis(45.0f, glm::vec3(0, 1, 0)) *
-                             glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)};
-  abcg::glUniform4fv(lightDirLoc, 1, &lightDirRotated.x);
-  abcg::glUniform4fv(IaLoc, 1, &m_Ia.x);
-  abcg::glUniform4fv(IdLoc, 1, &m_Id.x);
-  abcg::glUniform4fv(IsLoc, 1, &m_Is.x);
-  abcg::glUniform1f(shininessLoc, m_shininess);
+  // const auto lightDirRotated{glm::angleAxis(45.0f, glm::vec3(0, 1, 0)) *
+  //                            glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)};
+  abcg::glUniform4fv(lightDirLoc, 1, &light.lighDir.x);
+  abcg::glUniform4fv(IaLoc, 1, &light.Ia.x);
+  abcg::glUniform4fv(IdLoc, 1, &light.Id.x);
+  abcg::glUniform4fv(IsLoc, 1, &light.Is.x);
+  abcg::glUniform1f(shininessLoc, light.shininess);
   abcg::glUniform4fv(KaLoc, 1, &m_Ka.x);
   abcg::glUniform4fv(KdLoc, 1, &m_Kd.x);
   abcg::glUniform4fv(KsLoc, 1, &m_Ks.x);
@@ -320,7 +320,7 @@ void Airplane::computeNormals() {
   m_hasNormals = true;
 }
 
-void Airplane::paintGL(GameState gameSate) {
+void Airplane::paintGL(GameState gameSate, LightProperties light) {
   abcg::glUseProgram(program);
 
   abcg::glActiveTexture(GL_TEXTURE0);
@@ -336,7 +336,7 @@ void Airplane::paintGL(GameState gameSate) {
   abcg::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
   // Set  light vars
-  setLightConfig();
+  setLightConfig(light);
   abcg::glUniform1i(abcg::glGetUniformLocation(program, "diffuseTex"), 0);
 
   const GLint modelMatrixLoc{

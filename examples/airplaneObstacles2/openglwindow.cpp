@@ -97,7 +97,7 @@ void OpenGLWindow::initializeGL() {
 
   // Create program
   solidColorProgram = createProgramFromFile(getAssetsPath() + "lookat.vert",
-                                    getAssetsPath() + "lookat.frag");
+                                            getAssetsPath() + "lookat.frag");
   textureProgram =
       createProgramFromFile(getAssetsPath() + "textureShader.vert",
                             getAssetsPath() + "textureShader.frag");
@@ -132,9 +132,12 @@ void OpenGLWindow::paintGL() {
   abcg::glUseProgram(solidColorProgram);
 
   // Get location of uniform variables (could be precomputed)
-  GLint viewMatrixLoc{abcg::glGetUniformLocation(solidColorProgram, "viewMatrix")};
-  GLint projMatrixLoc{abcg::glGetUniformLocation(solidColorProgram, "projMatrix")};
-  GLint normalMatrixLoc{abcg::glGetUniformLocation(solidColorProgram, "normalMatrix")};
+  GLint viewMatrixLoc{
+      abcg::glGetUniformLocation(solidColorProgram, "viewMatrix")};
+  GLint projMatrixLoc{
+      abcg::glGetUniformLocation(solidColorProgram, "projMatrix")};
+  GLint normalMatrixLoc{
+      abcg::glGetUniformLocation(solidColorProgram, "normalMatrix")};
 
   // Set uniform variables for viewMatrix and projMatrix
   // These matrices are used for every scene object
@@ -169,7 +172,8 @@ void OpenGLWindow::paintGL() {
 
   abcg::glUniformMatrix3fv(normalMatrixLoc, 1, GL_FALSE, &normalMatrix_[0][0]);
 
-  airplane.paintGL(gameState);
+  airplane.paintGL(gameState, LightProperties{
+        .Ia = m_Ia, .Id = m_Id, .Is = m_Is, .shininess = m_shininess, .lighDir = lighDir});
 
   fmt::print("--> ({}, {}) \n", airplane.colisionRect.toString(),
              buildings.front().building1.colisionRect.toString());
@@ -193,7 +197,8 @@ void OpenGLWindow::paintGL() {
     respawnBuildings();
 
   for (BuildingDuple& _building : buildings) {
-    _building.paintGL();
+    _building.paintGL(LightProperties{
+        .Ia = m_Ia, .Id = m_Id, .Is = m_Is, .shininess = m_shininess, .lighDir = lighDir});
   }
   abcg::glUseProgram(0);
 }
@@ -219,6 +224,37 @@ void OpenGLWindow::paintUI() {
       ImGui::PopFont();
       ImGui::End();
     }
+
+    const auto widgetSize{ImVec2(222, 244)};
+    ImGui::SetNextWindowPos(ImVec2(m_viewportWidth - widgetSize.x - 5,
+                                   m_viewportHeight - widgetSize.y - 5));
+    ImGui::SetNextWindowSize(widgetSize);
+    ImGui::Begin(" ", nullptr, ImGuiWindowFlags_NoDecoration);
+
+    ImGui::Text("Light properties");
+
+    // Slider to control light properties
+    ImGui::PushItemWidth(widgetSize.x - 36);
+    ImGui::ColorEdit3("Ia", &m_Ia.x, ImGuiColorEditFlags_Float);
+    ImGui::ColorEdit3("Id", &m_Id.x, ImGuiColorEditFlags_Float);
+    ImGui::ColorEdit3("Is", &m_Is.x, ImGuiColorEditFlags_Float);
+    ImGui::PopItemWidth();
+
+    ImGui::Spacing();
+    ImGui::PushItemWidth(widgetSize.x - 36);
+    ImGui::ColorEdit3("coords", &lighDir.x, ImGuiColorEditFlags_Float);
+    // ImGui::ColorEdit3("y", &m_Id.x, ImGuiColorEditFlags_Float);
+    // ImGui::ColorEdit3("z", &m_Is.x, ImGuiColorEditFlags_Float);
+    ImGui::PopItemWidth();
+
+    ImGui::Spacing();
+
+    // Slider to control the specular shininess
+    ImGui::PushItemWidth(widgetSize.x - 16);
+    ImGui::SliderFloat("", &m_shininess, 0.0f, 500.0f, "shininess: %.1f");
+    ImGui::PopItemWidth();
+
+    ImGui::End();
   }
 }
 

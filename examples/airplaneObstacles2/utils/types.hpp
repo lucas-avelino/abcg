@@ -1,7 +1,8 @@
 #ifndef UTILS_TYPES_HPP_
 #define UTILS_TYPES_HPP_
-#include <glm/gtx/hash.hpp>
 #include <fmt/core.h>
+
+#include <glm/gtx/hash.hpp>
 
 struct Vertex {
   glm::vec3 position{};
@@ -16,12 +17,12 @@ struct Vertex {
   }
 };
 
-struct GameState{
+struct GameState {
   /**
    * 0 = To init
    * 1 = On game
    * 2 = Lose game state
-  **/
+   **/
   int state{0};
 };
 
@@ -29,9 +30,18 @@ struct Rectangle {
   glm::vec2 coord;
   glm::vec2 size;
 
-  std::string toString(){
-    return fmt::format("Coord: ({}, {}) Size: ({}, {})", coord.x, coord.y, size.x, size.y);
+  std::string toString() {
+    return fmt::format("Coord: ({}, {}) Size: ({}, {})", coord.x, coord.y,
+                       size.x, size.y);
   }
+};
+
+struct LightProperties {
+  glm::vec4 Ia;
+  glm::vec4 Id;
+  glm::vec4 Is;
+  float shininess;
+  glm::vec4 lighDir;
 };
 
 #endif

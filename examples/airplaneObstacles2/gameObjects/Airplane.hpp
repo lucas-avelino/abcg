@@ -9,7 +9,7 @@
 class Airplane {
  public:
   void initializeGL(GLuint program, std::string assetsPath);
-  void paintGL(GameState gameSate);
+  void paintGL(GameState gameSate, LightProperties light);
   void resizeGL(int width, int height);
   void terminateGL();
   void initGame();
@@ -40,7 +40,7 @@ class Airplane {
   void move();
   void createBuffers();
   void setupVAO();
-  void setLightConfig();
+  void setLightConfig(LightProperties light);
   void computeNormals();
 
   glm::vec4 m_Ia{1.0f};

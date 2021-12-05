@@ -1,10 +1,10 @@
 #ifndef OPENGLWINDOW_HPP_
 #define OPENGLWINDOW_HPP_
 
+#include <imgui.h>
+
 #include <list>
 #include <vector>
-
-#include <imgui.h>
 
 #include "abcg.hpp"
 #include "camera.hpp"
@@ -40,7 +40,7 @@ class OpenGLWindow : public abcg::OpenGLWindow {
 
   Ground m_ground;
   Airplane airplane;
-  std::list<BuildingDuple> buildings{ };
+  std::list<BuildingDuple> buildings{};
   void update();
 
   // Building spawn logic
@@ -54,6 +54,16 @@ class OpenGLWindow : public abcg::OpenGLWindow {
 
   // Timer
   int64_t zeroTime{0};
+
+  // Light
+  glm::vec4 m_Ia{1.0f};
+  glm::vec4 m_Id{1.0f};
+  glm::vec4 m_Is{1.0f};
+  glm::vec4 m_Ka;
+  glm::vec4 m_Kd;
+  glm::vec4 m_Ks;
+  float m_shininess{300.0f};
+  glm::vec4 lighDir;
 };
 
 #endif

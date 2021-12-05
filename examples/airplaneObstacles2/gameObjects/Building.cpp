@@ -274,7 +274,7 @@ void Building::loadDiffuseTexture(std::string_view path, int index) {
   m_diffuseTexture.at(index) = abcg::opengl::loadTexture(path);
 }
 
-void Building::setLightConfig() {
+void Building::setLightConfig(LightProperties light, int textureIndex) {
   const GLint lightDirLoc{
       abcg::glGetUniformLocation(program, "lightDirWorldSpace")};
   const GLint shininessLoc{abcg::glGetUniformLocation(program, "shininess")};
@@ -284,16 +284,15 @@ void Building::setLightConfig() {
   const GLint KaLoc{abcg::glGetUniformLocation(program, "Ka")};
   const GLint KdLoc{abcg::glGetUniformLocation(program, "Kd")};
   const GLint KsLoc{abcg::glGetUniformLocation(program, "Ks")};
-  const auto lightDirRotated{
-                             glm::vec4(-10.0f, 10.0f, 10.0f, 10.0f)};
+  const auto lightDirRotated{glm::vec4(100.0f, 100.0f, 100.0f, 10.0f) * light.lighDir};
   abcg::glUniform4fv(lightDirLoc, 1, &lightDirRotated.x);
-  abcg::glUniform4fv(IaLoc, 1, &m_Ia.x);
-  abcg::glUniform4fv(IdLoc, 1, &m_Id.x);
-  abcg::glUniform4fv(IsLoc, 1, &m_Is.x);
-  abcg::glUniform1f(shininessLoc, m_shininess[0]);
-  abcg::glUniform4fv(KaLoc, 1, &m_Ka[0].x);
-  abcg::glUniform4fv(KdLoc, 1, &m_Kd[0].x);
-  abcg::glUniform4fv(KsLoc, 1, &m_Ks[0].x);
+  abcg::glUniform4fv(IaLoc, 1, &light.Ia.x);
+  abcg::glUniform4fv(IdLoc, 1, &light.Id.x);
+  abcg::glUniform4fv(IsLoc, 1, &light.Is.x);
+  abcg::glUniform1f(shininessLoc, light.shininess);
+  abcg::glUniform4fv(KaLoc, 1, &m_Ka[textureIndex].x);
+  abcg::glUniform4fv(KdLoc, 1, &m_Kd[textureIndex].x);
+  abcg::glUniform4fv(KsLoc, 1, &m_Ks[textureIndex].x);
 }
 
 void Building::computeNormals() {
@@ -335,7 +334,7 @@ void Building::computeNormals() {
   // Clear previous vertex normals
 }
 
-void Building::paintGL() {
+void Building::paintGL(LightProperties light) {
   abcg::glUseProgram(program);
   fmt::print("[Building][paintGL]position: ({}, {}, {})\n", position.x,
              position.y, position.z);
@@ -364,7 +363,7 @@ void Building::paintGL() {
     abcg::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
     // Set  light vars
-    setLightConfig();
+    setLightConfig(light, groupOffset % 11);
     abcg::glUniform1i(abcg::glGetUniformLocation(program, "diffuseTex"), 0);
 
     const GLint colorLoc{abcg::glGetUniformLocation(program, "color")};

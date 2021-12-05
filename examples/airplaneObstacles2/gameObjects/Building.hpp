@@ -11,7 +11,7 @@ class Building {
  public:
   Building(glm::vec3 position) { this->position = position; };
   void initializeGL(GLuint program, std::string assetsPath);
-  void paintGL();
+  void paintGL(LightProperties light);
   void resizeGL(int width, int height);
   void terminateGL();
   void initGame( glm::vec3 position);
@@ -44,7 +44,7 @@ class Building {
 
   void createBuffers();
   void setupVAO(int groupOffset);
-  void setLightConfig();
+  void setLightConfig(LightProperties light, int textureIndex);
   void computeNormals();
 
   glm::vec4 m_Ia{1.0f};
@@ -66,9 +66,9 @@ struct BuildingDuple {
   Building building1;
   Building building2;
 
-  void paintGL() {
-    building1.paintGL();
-    building2.paintGL();
+  void paintGL(LightProperties light) {
+    building1.paintGL(light);
+    building2.paintGL(light);
   };
 
   void initializeGL(GLuint program, std::string assetsPath) {
