@@ -96,8 +96,9 @@ void OpenGLWindow::initializeGL() {
   abcg::glEnable(GL_DEPTH_TEST);
 
   // Create program
-  solidColorProgram = createProgramFromFile(getAssetsPath() + "lookat.vert",
-                                            getAssetsPath() + "lookat.frag");
+  solidColorProgram =
+      createProgramFromFile(getAssetsPath() + "solidColorShader.vert",
+                            getAssetsPath() + "solidColorShader.frag");
   textureProgram =
       createProgramFromFile(getAssetsPath() + "textureShader.vert",
                             getAssetsPath() + "textureShader.frag");
@@ -172,9 +173,19 @@ void OpenGLWindow::paintGL() {
 
   abcg::glUniformMatrix3fv(normalMatrixLoc, 1, GL_FALSE, &normalMatrix_[0][0]);
 
-  airplane.paintGL(gameState, LightProperties{
-        .Ia = m_Ia, .Id = m_Id, .Is = m_Is, .shininess = m_shininess, .lighDir = lighDir});
+  airplane.paintGL(gameState, LightProperties{.Ia = m_Ia,
+                                              .Id = m_Id,
+                                              .Is = m_Is,
+                                              .shininess = m_shininess,
+                                              .lighDir = lighDir});
 
+  for (BuildingDuple& _building : buildings) {
+    _building.paintGL(LightProperties{.Ia = m_Ia,
+                                      .Id = m_Id,
+                                      .Is = m_Is,
+                                      .shininess = m_shininess,
+                                      .lighDir = lighDir});
+  }
   fmt::print("--> ({}, {}) \n", airplane.colisionRect.toString(),
              buildings.front().building1.colisionRect.toString());
 
@@ -193,13 +204,9 @@ void OpenGLWindow::paintGL() {
     }
   }
 
-  if (buildings.front().building1.position.z > airplane.position.z + 3)
+  if (buildings.front().building1.position.z > airplane.position.z + 4)
     respawnBuildings();
 
-  for (BuildingDuple& _building : buildings) {
-    _building.paintGL(LightProperties{
-        .Ia = m_Ia, .Id = m_Id, .Is = m_Is, .shininess = m_shininess, .lighDir = lighDir});
-  }
   abcg::glUseProgram(0);
 }
 

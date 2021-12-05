@@ -32,6 +32,7 @@ void Building::createBuffers() {
   for (const auto offset : iter::range<int>(0, verticeGroups.size(), 1)) {
     VBO.push_back(0);
     EBO.push_back(0);
+    VAO.push_back(0);
   }
   fmt::print("verticeGroups {} \n", verticeGroups.size());
   for (const auto offset : iter::range<int>(0, verticeGroups.size(), 1)) {
@@ -59,9 +60,7 @@ void Building::createBuffers() {
     abcg::glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     // fmt::print("passou {} \n", offset);
   }
-  for (const auto groupOffset : iter::range<int>(0, verticeGroups.size(), 1)) {
-    VAO.push_back(0);
-  }
+
   fmt::print("Created Buffers\n");
 }
 
@@ -261,9 +260,9 @@ void Building::loadModelFromFile(std::string_view path,
     // m_shininess = 25.0f;
   }
   fmt::print("textures loaded\n");
-  if (!m_hasNormals) {
+  // if (!m_hasNormals) {
     computeNormals();
-  }
+  // }
   fmt::print("normals computed\n");
 }
 
@@ -284,7 +283,8 @@ void Building::setLightConfig(LightProperties light, int textureIndex) {
   const GLint KaLoc{abcg::glGetUniformLocation(program, "Ka")};
   const GLint KdLoc{abcg::glGetUniformLocation(program, "Kd")};
   const GLint KsLoc{abcg::glGetUniformLocation(program, "Ks")};
-  const auto lightDirRotated{glm::vec4(100.0f, 100.0f, 100.0f, 10.0f) * light.lighDir};
+  const auto lightDirRotated{glm::vec4(100.0f, 100.0f, 100.0f, 10.0f) *
+                             light.lighDir};
   abcg::glUniform4fv(lightDirLoc, 1, &lightDirRotated.x);
   abcg::glUniform4fv(IaLoc, 1, &light.Ia.x);
   abcg::glUniform4fv(IdLoc, 1, &light.Id.x);
@@ -340,8 +340,10 @@ void Building::paintGL(LightProperties light) {
              position.y, position.z);
 
   glm::mat4 model{1.0f};
-  model = glm::translate(model, position);
-  model = glm::scale(model, glm::vec3(0.0005f));
+  model = glm::translate(model, position + glm::vec3(0, 0, -1.10f)
+                         // + glm::vec3(-0.5f, 1.2f, 0)
+  );
+  model = glm::scale(model, scale);
   abcg::glUniformMatrix4fv(abcg::glGetUniformLocation(program, "modelMatrix"),
                            1, GL_FALSE, &model[0][0]);
   colisionRect =
@@ -350,8 +352,10 @@ void Building::paintGL(LightProperties light) {
   for (const auto groupOffset : iter::range(verticeGroups.size())) {
     setupVAO(groupOffset);
     abcg::glActiveTexture(GL_TEXTURE0);
-    if (m_diffuseTexture[groupOffset % 11] != 0)
-      abcg::glBindTexture(GL_TEXTURE_2D, m_diffuseTexture[groupOffset % 11]);
+    if (m_diffuseTexture[groupOffset % m_diffuseTexture.size()] != 0)
+      abcg::glBindTexture(
+          GL_TEXTURE_2D,
+          m_diffuseTexture[groupOffset % m_diffuseTexture.size()]);
     abcg::glUniform1i(rederingTypeLocale, 0);
 
     // Set minification and magnification parameters
@@ -363,7 +367,7 @@ void Building::paintGL(LightProperties light) {
     abcg::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
     // Set  light vars
-    setLightConfig(light, groupOffset % 11);
+    setLightConfig(light, groupOffset % m_diffuseTexture.size());
     abcg::glUniform1i(abcg::glGetUniformLocation(program, "diffuseTex"), 0);
 
     const GLint colorLoc{abcg::glGetUniformLocation(program, "color")};

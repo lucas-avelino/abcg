@@ -1,5 +1,19 @@
 # 3ds Max Wavefront OBJ Exporter v0.97b - (c)2007 guruware
-# File Created: 16.11.2020 21:01:31
+# File Created: 16.11.2020 18:20:30
+
+newmtl 01___Default
+	Ns 9.999999
+	Ni 1.500000
+	d 1.000000
+	Tr 0.000000
+	Tf 1.000000 1.000000 1.000000 
+	illum 2
+	Ka 0.588235 0.588235 0.588235
+	Kd 0.588235 0.588235 0.588235
+	Ks 0.000000 0.000000 0.000000
+	Ke 0.000000 0.000000 0.000000
+	map_Ka Textures\MGH_IMG_3288.jpg
+	map_Kd Textures\MGH_IMG_3288.jpg
 
 newmtl 02___Default
 	Ns 9.999999
@@ -12,10 +26,10 @@ newmtl 02___Default
 	Kd 0.588235 0.588235 0.588235
 	Ks 0.000000 0.000000 0.000000
 	Ke 0.000000 0.000000 0.000000
-	map_Ka textures\Ba_House_05.jpg
-	map_Kd textures\Ba_House_05.jpg
+	map_Ka Textures\MAF_Buildings_Roof_detail.jpg
+	map_Kd Textures\MAF_Buildings_Roof_detail.jpg
 
-newmtl 08___Defau45
+newmtl Material__58
 	Ns 9.999999
 	Ni 1.500000
 	d 1.000000
@@ -26,129 +40,41 @@ newmtl 08___Defau45
 	Kd 0.588235 0.588235 0.588235
 	Ks 0.000000 0.000000 0.000000
 	Ke 0.000000 0.000000 0.000000
-	map_Ka textures\Ba_House_05_2.jpg
-	map_Kd textures\Ba_House_05_2.jpg
+	map_Ka Textures\MAF_Buildings_Roof_detail.jpg
+	map_Kd Textures\MAF_Buildings_Roof_detail.jpg
 
-newmtl 03___Default
+newmtl 04___Default
 	Ns 9.999999
 	Ni 1.500000
 	d 1.000000
 	Tr 0.000000
 	Tf 1.000000 1.000000 1.000000 
 	illum 2
-	Ka 0.588235 0.588235 0.588235
-	Kd 0.588235 0.588235 0.588235
+	Ka 0.000000 0.000000 0.000000
+	Kd 0.000000 0.000000 0.000000
 	Ks 0.000000 0.000000 0.000000
 	Ke 0.000000 0.000000 0.000000
-	map_Ka textures\Ba_House_kaf.jpg
-	map_Kd textures\Ba_House_kaf.jpg
 
-newmtl Standard_22
+newmtl Material__150
+	Ns 26.000000
+	Ni 1.500000
+	d 1.000000
+	Tr 0.000000
+	Tf 1.000000 1.000000 1.000000 
+	illum 2
+	Ka 0.050980 0.050980 0.050980
+	Kd 0.050980 0.050980 0.050980
+	Ks 0.999000 0.999000 0.999000
+	Ke 0.000000 0.000000 0.000000
+
+newmtl Standard_2
 	Ns 10.000000
 	Ni 1.500000
 	d 1.000000
 	Tr 0.000000
 	Tf 1.000000 1.000000 1.000000 
 	illum 2
-	Ka 0.588000 0.588000 0.588000
-	Kd 0.588000 0.588000 0.588000
+	Ka 0.411765 0.070588 0.070588
+	Kd 0.411765 0.070588 0.070588
 	Ks 0.000000 0.000000 0.000000
 	Ke 0.000000 0.000000 0.000000
-	map_Ka textures\MAF_wall_conc.jpg
-	map_Kd textures\MAF_wall_conc.jpg
-
-newmtl Standard_16
-	Ns 10.000000
-	Ni 1.500000
-	d 1.000000
-	Tr 0.000000
-	Tf 1.000000 1.000000 1.000000 
-	illum 2
-	Ka 0.588000 0.588000 0.588000
-	Kd 0.588000 0.588000 0.588000
-	Ks 0.000000 0.000000 0.000000
-	Ke 0.000000 0.000000 0.000000
-	map_Ka textures\RooftilesBitumen0009_1_S.jpg
-	map_Kd textures\RooftilesBitumen0009_1_S.jpg
-
-newmtl Standard_23
-	Ns 10.000000
-	Ni 1.500000
-	d 1.000000
-	Tr 0.000000
-	Tf 1.000000 1.000000 1.000000 
-	illum 2
-	Ka 0.588000 0.588000 0.588000
-	Kd 0.588000 0.588000 0.588000
-	Ks 0.000000 0.000000 0.000000
-	Ke 0.000000 0.000000 0.000000
-	map_Ka textures\MAF_wall_conc.jpg
-	map_Kd textures\MAF_wall_conc.jpg
-
-newmtl Standa59
-	Ns 10.000000
-	Ni 1.500000
-	d 1.000000
-	Tr 0.000000
-	Tf 1.000000 1.000000 1.000000 
-	illum 2
-	Ka 0.588000 0.588000 0.588000
-	Kd 0.588000 0.588000 0.588000
-	Ks 0.000000 0.000000 0.000000
-	Ke 0.000000 0.000000 0.000000
-	map_Ka textures\DoorsMetalSingle0326_S.jpg
-	map_Kd textures\DoorsMetalSingle0326_S.jpg
-
-newmtl Standard_11dsa
-	Ns 44.000000
-	Ni 1.500000
-	d 1.000000
-	Tr 0.000000
-	Tf 1.000000 1.000000 1.000000 
-	illum 2
-	Ka 0.650980 0.650980 0.650980
-	Kd 0.650980 0.650980 0.650980
-	Ks 0.747000 0.747000 0.747000
-	Ke 0.000000 0.000000 0.000000
-
-newmtl Stand15
-	Ns 10.000000
-	Ni 1.500000
-	d 1.000000
-	Tr 0.000000
-	Tf 1.000000 1.000000 1.000000 
-	illum 2
-	Ka 0.588000 0.588000 0.588000
-	Kd 0.588000 0.588000 0.588000
-	Ks 0.000000 0.000000 0.000000
-	Ke 0.000000 0.000000 0.000000
-	map_Ka textures\Ba_House_05_3.jpg
-	map_Kd textures\Ba_House_05_3.jpg
-
-newmtl Material__37
-	Ns 9.999999
-	Ni 1.500000
-	d 1.000000
-	Tr 0.000000
-	Tf 1.000000 1.000000 1.000000 
-	illum 2
-	Ka 0.588235 0.588235 0.588235
-	Kd 0.588235 0.588235 0.588235
-	Ks 0.000000 0.000000 0.000000
-	Ke 0.000000 0.000000 0.000000
-	map_Ka textures\Ba_House_05.jpg
-	map_Kd textures\Ba_House_05.jpg
-
-newmtl Material__92
-	Ns 9.999999
-	Ni 1.500000
-	d 1.000000
-	Tr 0.000000
-	Tf 1.000000 1.000000 1.000000 
-	illum 2
-	Ka 0.588235 0.588235 0.588235
-	Kd 0.588235 0.588235 0.588235
-	Ks 0.000000 0.000000 0.000000
-	Ke 0.000000 0.000000 0.000000
-	map_Ka textures\MAF_Buildings_Roof_detail.jpg
-	map_Kd textures\MAF_Buildings_Roof_detail.jpg

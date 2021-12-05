@@ -1,11 +1,12 @@
 #ifndef BUILDING_HPP_
 #define BUILDING_HPP_
 
+#include <fmt/core.h>
+
 #include <vector>
 
 #include "../utils/types.hpp"
 #include "abcg.hpp"
-#include <fmt/core.h>
 
 class Building {
  public:
@@ -14,11 +15,12 @@ class Building {
   void paintGL(LightProperties light);
   void resizeGL(int width, int height);
   void terminateGL();
-  void initGame( glm::vec3 position);
+  void initGame(glm::vec3 position);
   glm::vec3 position{.0f, .5f, 0.0f};
   Rectangle colisionRect;
-  std::string toString(){
-    return fmt::format("[Building] position ({}, {}, {})", position.x, position.y, position.z);
+  std::string toString() {
+    return fmt::format("[Building] position ({}, {}, {})", position.x,
+                       position.y, position.z);
   };
 
  private:
@@ -57,9 +59,9 @@ class Building {
 
   bool m_hasNormals{false};
   bool m_hasTexCoords{false};
-  
-  //
-  
+
+  // Scale
+  const glm::vec3 scale{ glm::vec3(0.0048f) * glm::vec3(1, 1, 0.5) };
 };
 
 struct BuildingDuple {
