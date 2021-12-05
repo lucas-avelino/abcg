@@ -186,15 +186,14 @@ void OpenGLWindow::paintGL() {
                                       .shininess = m_shininess,
                                       .lighDir = lighDir});
   }
-  fmt::print("--> ({}, {}) \n", airplane.colisionRect.toString(),
-             buildings.front().building1.colisionRect.toString());
+  // fmt::print("--> ({}, {}) \n", airplane.colisionRect.toString(),
+  //            buildings.front().building1.colisionRect.toString());
 
   int airplaneZPositionFloor = floor(airplane.position.z);
 
   // Only check colision with airplane is near to 10 multiples
   if (gameState.state == 1 && airplaneZPositionFloor < 1 &&
-      (airplaneZPositionFloor % 9 == 0 || airplaneZPositionFloor % 10 == 0 ||
-       airplaneZPositionFloor % 11 == 0)) {
+      airplaneZPositionFloor % 10 == 0) {
     if (reactsCollision(buildings.front().building1.colisionRect,
                         airplane.colisionRect) ||
         reactsCollision(buildings.front().building2.colisionRect,

@@ -344,11 +344,7 @@ void Airplane::paintGL(GameState gameSate, LightProperties light) {
   const GLint colorLoc{abcg::glGetUniformLocation(program, "color")};
 
   abcg::glBindVertexArray(VAO);
-  int64_t actualTime = duration_cast<std::chrono::milliseconds>(
-                           std::chrono::system_clock::now().time_since_epoch())
-                           .count();
 
-  int64_t timeElapsed = actualTime - zeroTime;
   glm::mat4 model{1.0f};
   if (gameSate.state == 1) move();
 

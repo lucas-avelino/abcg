@@ -333,8 +333,6 @@ void Building::computeNormals() {
 
 void Building::paintGL(LightProperties light) {
   abcg::glUseProgram(program);
-  fmt::print("[Building][paintGL]position: ({}, {}, {})\n", position.x,
-             position.y, position.z);
 
   glm::mat4 model{1.0f};
   model = glm::translate(model, position + glm::vec3(0, 0, -1.10f)
