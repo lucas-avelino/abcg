@@ -26,7 +26,8 @@ class OpenGLWindow : public abcg::OpenGLWindow {
   // GLuint m_VAO{};
   // GLuint m_VBO{};
   // GLuint m_EBO{};
-  GLuint m_program{};
+  GLuint solidColorProgram{};
+  GLuint textureProgram{};
 
   int m_viewportWidth{};
   int m_viewportHeight{};

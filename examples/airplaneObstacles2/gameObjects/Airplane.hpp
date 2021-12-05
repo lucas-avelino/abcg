@@ -49,7 +49,7 @@ class Airplane {
   glm::vec4 m_Ka;
   glm::vec4 m_Kd;
   glm::vec4 m_Ks;
-  float m_shininess{};
+  float m_shininess{10.0f};
   bool m_hasNormals{false};
   bool m_hasTexCoords{false};
 

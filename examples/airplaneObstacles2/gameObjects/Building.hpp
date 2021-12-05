@@ -53,7 +53,7 @@ class Building {
   std::vector<glm::vec4> m_Ka;
   std::vector<glm::vec4> m_Kd;
   std::vector<glm::vec4> m_Ks;
-  std::vector<float> m_shininess{};
+  std::vector<float> m_shininess{300.0f};
 
   bool m_hasNormals{false};
   bool m_hasTexCoords{false};

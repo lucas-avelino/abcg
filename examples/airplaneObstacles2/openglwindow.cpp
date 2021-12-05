@@ -73,10 +73,9 @@ void OpenGLWindow::spacePress() {
   }
   if (gameState.state == 2) {
     gameState.state = 0;
-     resetBuildings();
+    resetBuildings();
     airplane.initGame();
     gameState.state = 1;
-
   }
 }
 
@@ -97,11 +96,14 @@ void OpenGLWindow::initializeGL() {
   abcg::glEnable(GL_DEPTH_TEST);
 
   // Create program
-  m_program = createProgramFromFile(getAssetsPath() + "lookat.vert",
+  solidColorProgram = createProgramFromFile(getAssetsPath() + "lookat.vert",
                                     getAssetsPath() + "lookat.frag");
+  textureProgram =
+      createProgramFromFile(getAssetsPath() + "textureShader.vert",
+                            getAssetsPath() + "textureShader.frag");
 
-  m_ground.initializeGL(m_program);
-  airplane.initializeGL(m_program, getAssetsPath());
+  m_ground.initializeGL(solidColorProgram);
+  airplane.initializeGL(textureProgram, getAssetsPath());
 
   buildings.push_back(
       BuildingDuple{.building1 = Building{glm::vec3(0, 0, .0f)},
@@ -114,7 +116,7 @@ void OpenGLWindow::initializeGL() {
                     .building2 = Building{glm::vec3(0, 0, -20.0f)}});
 
   for (BuildingDuple& _building : buildings) {
-    _building.initializeGL(m_program, getAssetsPath());
+    _building.initializeGL(textureProgram, getAssetsPath());
   }
   resizeGL(getWindowSettings().width, getWindowSettings().height);
 }
@@ -127,15 +129,12 @@ void OpenGLWindow::paintGL() {
 
   abcg::glViewport(0, 0, m_viewportWidth, m_viewportHeight);
 
-  abcg::glUseProgram(m_program);
+  abcg::glUseProgram(solidColorProgram);
 
   // Get location of uniform variables (could be precomputed)
-  const GLint viewMatrixLoc{
-      abcg::glGetUniformLocation(m_program, "viewMatrix")};
-  const GLint projMatrixLoc{
-      abcg::glGetUniformLocation(m_program, "projMatrix")};
-  const GLint modelMatrixLoc{
-      abcg::glGetUniformLocation(m_program, "modelMatrix")};
+  GLint viewMatrixLoc{abcg::glGetUniformLocation(solidColorProgram, "viewMatrix")};
+  GLint projMatrixLoc{abcg::glGetUniformLocation(solidColorProgram, "projMatrix")};
+  GLint normalMatrixLoc{abcg::glGetUniformLocation(solidColorProgram, "normalMatrix")};
 
   // Set uniform variables for viewMatrix and projMatrix
   // These matrices are used for every scene object
@@ -143,16 +142,34 @@ void OpenGLWindow::paintGL() {
                            &m_camera.m_viewMatrix[0][0]);
   abcg::glUniformMatrix4fv(projMatrixLoc, 1, GL_FALSE,
                            &m_camera.m_projMatrix[0][0]);
-  const GLint normalMatrixLoc{
-      abcg::glGetUniformLocation(m_program, "normalMatrix")};
+
   const auto modelViewMatrix{
       glm::mat3(m_camera.m_viewMatrix * m_camera.m_projMatrix)};
   glm::mat3 normalMatrix{glm::inverseTranspose(modelViewMatrix)};
 
   abcg::glUniformMatrix3fv(normalMatrixLoc, 1, GL_FALSE, &normalMatrix[0][0]);
 
-  airplane.paintGL(gameState);
   m_ground.paintGL();
+
+  abcg::glUseProgram(textureProgram);
+
+  // Get location of uniform variables (could be precomputed)
+  viewMatrixLoc = abcg::glGetUniformLocation(textureProgram, "viewMatrix");
+  projMatrixLoc = abcg::glGetUniformLocation(textureProgram, "projMatrix");
+  normalMatrixLoc = abcg::glGetUniformLocation(textureProgram, "normalMatrix");
+
+  // Set uniform variables for viewMatrix and projMatrix
+  // These matrices are used for every scene object
+  abcg::glUniformMatrix4fv(viewMatrixLoc, 1, GL_FALSE,
+                           &m_camera.m_viewMatrix[0][0]);
+  abcg::glUniformMatrix4fv(projMatrixLoc, 1, GL_FALSE,
+                           &m_camera.m_projMatrix[0][0]);
+  glm::mat3 normalMatrix_{glm::inverseTranspose(
+      glm::mat3(m_camera.m_viewMatrix * m_camera.m_projMatrix))};
+
+  abcg::glUniformMatrix3fv(normalMatrixLoc, 1, GL_FALSE, &normalMatrix_[0][0]);
+
+  airplane.paintGL(gameState);
 
   fmt::print("--> ({}, {}) \n", airplane.colisionRect.toString(),
              buildings.front().building1.colisionRect.toString());
@@ -160,7 +177,7 @@ void OpenGLWindow::paintGL() {
   int airplaneZPositionFloor = floor(airplane.position.z);
 
   // Only check colision with airplane is near to 10 multiples
-  if (gameState.state == 1  && airplaneZPositionFloor < 1 &&
+  if (gameState.state == 1 && airplaneZPositionFloor < 1 &&
       (airplaneZPositionFloor % 9 == 0 || airplaneZPositionFloor % 10 == 0 ||
        airplaneZPositionFloor % 11 == 0)) {
     if (reactsCollision(buildings.front().building1.colisionRect,
@@ -216,7 +233,8 @@ void OpenGLWindow::terminateGL() {
   m_ground.terminateGL();
   airplane.terminateGL();
   for (auto _building : buildings) _building.terminateGL();
-  abcg::glDeleteProgram(m_program);
+  abcg::glDeleteProgram(solidColorProgram);
+  abcg::glDeleteProgram(textureProgram);
 }
 void OpenGLWindow::update() {
   const float deltaTime{static_cast<float>(getDeltaTime())};

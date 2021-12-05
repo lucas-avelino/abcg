@@ -284,9 +284,8 @@ void Building::setLightConfig() {
   const GLint KaLoc{abcg::glGetUniformLocation(program, "Ka")};
   const GLint KdLoc{abcg::glGetUniformLocation(program, "Kd")};
   const GLint KsLoc{abcg::glGetUniformLocation(program, "Ks")};
-
-  const auto lightDirRotated{glm::angleAxis(90.0f, glm::vec3(0, 1, 0)) *
-                             glm::vec4(-1.0f, -1.0f, -1.0f, 0.0f)};
+  const auto lightDirRotated{
+                             glm::vec4(-10.0f, 10.0f, 10.0f, 10.0f)};
   abcg::glUniform4fv(lightDirLoc, 1, &lightDirRotated.x);
   abcg::glUniform4fv(IaLoc, 1, &m_Ia.x);
   abcg::glUniform4fv(IdLoc, 1, &m_Id.x);
