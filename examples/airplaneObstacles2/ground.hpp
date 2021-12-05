@@ -6,7 +6,7 @@
 class Ground {
  public:
   void initializeGL(GLuint program);
-  void paintGL();
+  void paintGL(int postion);
   void terminateGL();
 
  private:

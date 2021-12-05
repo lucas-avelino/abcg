@@ -310,9 +310,6 @@ void Building::computeNormals() {
       Vertex& b = verticeGroups.at(groupOffset).at(offset + 1);
       Vertex& c = verticeGroups.at(groupOffset).at(offset + 2);
 
-      // Vertex& b{groupverticeGroups[groupOffset].at(indices.at(offset + 1))};
-      // Vertex& c{verticeGroups[groupOffset].at(indices.at(offset + 2))};
-
       // Compute normal
       const auto edge1{b.position - a.position};
       const auto edge2{c.position - b.position};

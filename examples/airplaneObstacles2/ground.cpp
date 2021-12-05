@@ -34,15 +34,15 @@ void Ground::initializeGL(GLuint program) {
   rederingTypeLocale = abcg::glGetUniformLocation(program, "rederingType");
 }
 
-void Ground::paintGL() {
+void Ground::paintGL(int position) {
   // Draw a grid of tiles centered on the xz plane
-  const int N{50};
+  const int N{5000};
 
   abcg::glBindVertexArray(m_VAO);
   abcg::glUniform1i(rederingTypeLocale, 1);
 
-  for (const auto z : iter::range(-N, N + 1)) {
-    for (const auto x : iter::range(-N, N + 1)) {
+  for (const auto z : iter::range(position -20, position + 5 )) {
+    for (const auto x : iter::range(-10, 10)) {
       // Set model matrix
       glm::mat4 model{1.0f};
       model = glm::translate(model, glm::vec3(x, 0.0f, z));

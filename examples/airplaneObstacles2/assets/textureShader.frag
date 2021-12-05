@@ -52,8 +52,6 @@ vec4 BlinnPhong(vec3 N, vec3 L, vec3 V, vec2 texCoord) {
 }
 
 // Planar mapping
-
-
 void main() {
   vec2 texCoord = fragTexCoord;
   outColor = BlinnPhong(fragN, fragL, fragV, texCoord);

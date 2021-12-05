@@ -153,7 +153,7 @@ void OpenGLWindow::paintGL() {
 
   abcg::glUniformMatrix3fv(normalMatrixLoc, 1, GL_FALSE, &normalMatrix[0][0]);
 
-  m_ground.paintGL();
+  m_ground.paintGL(floor(airplane.position.z));
 
   abcg::glUseProgram(textureProgram);
 
