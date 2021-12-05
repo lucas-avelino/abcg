@@ -24,6 +24,7 @@ struct GameState {
    * 2 = Lose game state
    **/
   int state{0};
+  int points{0};
 };
 
 struct Rectangle {

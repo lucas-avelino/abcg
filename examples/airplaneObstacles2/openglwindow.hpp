@@ -23,15 +23,11 @@ class OpenGLWindow : public abcg::OpenGLWindow {
   void terminateGL() override;
 
  private:
-  // GLuint m_VAO{};
-  // GLuint m_VBO{};
-  // GLuint m_EBO{};
   GLuint solidColorProgram{};
   GLuint textureProgram{};
 
   int m_viewportWidth{};
   int m_viewportHeight{};
-  ImFont* font{};
 
   Camera m_camera;
   float m_dollySpeed{0.0f};
@@ -48,7 +44,7 @@ class OpenGLWindow : public abcg::OpenGLWindow {
   void resetBuildings();
 
   // GameState
-  GameState gameState{.state = 0};
+  GameState gameState{};
 
   void spacePress();
 
@@ -64,6 +60,11 @@ class OpenGLWindow : public abcg::OpenGLWindow {
   glm::vec4 m_Ks;
   float m_shininess{300.0f};
   glm::vec4 lighDir;
+
+  //Font
+  ImFont* font{};
+  
+  
 };
 
 #endif

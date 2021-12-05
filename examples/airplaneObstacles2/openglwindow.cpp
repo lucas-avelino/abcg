@@ -72,10 +72,9 @@ void OpenGLWindow::spacePress() {
                    .count();
   }
   if (gameState.state == 2) {
-    gameState.state = 0;
     resetBuildings();
     airplane.initGame();
-    gameState.state = 1;
+    gameState.state = 0;
   }
 }
 
@@ -179,6 +178,9 @@ void OpenGLWindow::paintGL() {
                                               .shininess = m_shininess,
                                               .lighDir = lighDir});
 
+  gameState.points = floor(-airplane.position.z);
+  gameState.points = gameState.points < 0 ? 0 : gameState.points;
+
   for (BuildingDuple& _building : buildings) {
     _building.paintGL(LightProperties{.Ia = m_Ia,
                                       .Id = m_Id,
@@ -218,12 +220,44 @@ void OpenGLWindow::paintUI() {
 
     ImGui::SetNextWindowPos(position);
     ImGui::SetNextWindowSize(size);
+    ImGui::Begin(" ", nullptr,
+                 ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoTitleBar |
+                     ImGuiWindowFlags_NoInputs);
+
+    // font->FontSize = .025f;
+    // setFontSize(1);
+    font->Scale = 1.0f;
+    ImGui::PushFont(font);
+    ImGui::Text("%i", gameState.points);
+
+    ImGui::PopFont();
+    ImGui::End();
+    if (gameState.state == 0) {
+      ImGui::SetNextWindowPos(ImVec2{(size.x / 2) - 250, (size.y / 2) - 50});
+      ImGui::SetNextWindowSize(ImVec2(600, 200));
+      ImGui::Begin("  ", nullptr,
+                   ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoTitleBar |
+                       ImGuiWindowFlags_NoInputs);
+
+      // this->font->Scale = 0.5f;
+
+      // setFontSize(0);
+      font->Scale = 0.5f;
+      ImGui::PushFont(this->font);
+      ImGui::Text("Pressione 'space' para iniciar o jogo");
+
+      ImGui::PopFont();
+      ImGui::End();
+    }
     if (gameState.state == 2) {
       ImGui::SetNextWindowPos(ImVec2{(size.x / 2) - 150, (size.y / 2) - 50});
       ImGui::SetNextWindowSize(ImVec2(400, 100));
       ImGui::Begin("  ", nullptr,
                    ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoTitleBar |
                        ImGuiWindowFlags_NoInputs);
+      // this->font->Scale = 2.0f;
+      // setFontSize(1);
+      font->Scale = 1.0f;
       ImGui::PushFont(this->font);
       ImGui::Text("Você perdeu");
 
@@ -231,36 +265,36 @@ void OpenGLWindow::paintUI() {
       ImGui::End();
     }
 
-    const auto widgetSize{ImVec2(222, 244)};
-    ImGui::SetNextWindowPos(ImVec2(m_viewportWidth - widgetSize.x - 5,
-                                   m_viewportHeight - widgetSize.y - 5));
-    ImGui::SetNextWindowSize(widgetSize);
-    ImGui::Begin(" ", nullptr, ImGuiWindowFlags_NoDecoration);
+    // const auto widgetSize{ImVec2(222, 244)};
+    // ImGui::SetNextWindowPos(ImVec2(m_viewportWidth - widgetSize.x - 5,
+    //                                m_viewportHeight - widgetSize.y - 5));
+    // ImGui::SetNextWindowSize(widgetSize);
+    // ImGui::Begin(" ", nullptr, ImGuiWindowFlags_NoDecoration);
 
-    ImGui::Text("Light properties");
+    // ImGui::Text("Light properties");
 
-    // Slider to control light properties
-    ImGui::PushItemWidth(widgetSize.x - 36);
-    ImGui::ColorEdit3("Ia", &m_Ia.x, ImGuiColorEditFlags_Float);
-    ImGui::ColorEdit3("Id", &m_Id.x, ImGuiColorEditFlags_Float);
-    ImGui::ColorEdit3("Is", &m_Is.x, ImGuiColorEditFlags_Float);
-    ImGui::PopItemWidth();
+    // // Slider to control light properties
+    // ImGui::PushItemWidth(widgetSize.x - 36);
+    // ImGui::ColorEdit3("Ia", &m_Ia.x, ImGuiColorEditFlags_Float);
+    // ImGui::ColorEdit3("Id", &m_Id.x, ImGuiColorEditFlags_Float);
+    // ImGui::ColorEdit3("Is", &m_Is.x, ImGuiColorEditFlags_Float);
+    // ImGui::PopItemWidth();
 
-    ImGui::Spacing();
-    ImGui::PushItemWidth(widgetSize.x - 36);
-    ImGui::ColorEdit3("coords", &lighDir.x, ImGuiColorEditFlags_Float);
-    // ImGui::ColorEdit3("y", &m_Id.x, ImGuiColorEditFlags_Float);
-    // ImGui::ColorEdit3("z", &m_Is.x, ImGuiColorEditFlags_Float);
-    ImGui::PopItemWidth();
+    // ImGui::Spacing();
+    // ImGui::PushItemWidth(widgetSize.x - 36);
+    // ImGui::ColorEdit3("coords", &lighDir.x, ImGuiColorEditFlags_Float);
+    // // ImGui::ColorEdit3("y", &m_Id.x, ImGuiColorEditFlags_Float);
+    // // ImGui::ColorEdit3("z", &m_Is.x, ImGuiColorEditFlags_Float);
+    // ImGui::PopItemWidth();
 
-    ImGui::Spacing();
+    // ImGui::Spacing();
 
-    // Slider to control the specular shininess
-    ImGui::PushItemWidth(widgetSize.x - 16);
-    ImGui::SliderFloat("", &m_shininess, 0.0f, 500.0f, "shininess: %.1f");
-    ImGui::PopItemWidth();
+    // // Slider to control the specular shininess
+    // ImGui::PushItemWidth(widgetSize.x - 16);
+    // ImGui::SliderFloat("", &m_shininess, 0.0f, 500.0f, "shininess: %.1f");
+    // ImGui::PopItemWidth();
 
-    ImGui::End();
+    // ImGui::End();
   }
 }
 
