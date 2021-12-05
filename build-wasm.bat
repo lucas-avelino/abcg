@@ -1,11 +1,14 @@
-@echo off
+:: @echo off
 
 set BUILD_TYPE=Release
 
+:: echo "teste"
 ../emsdk/emsdk_env.bat
 
+:: echo "teste"
 :: Reset build directory
-rd /s /q build 2>nul
+rd /s /q build
+:: del /S /q build
 mkdir build & cd build
 
 :: Configure and build

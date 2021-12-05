@@ -6,7 +6,7 @@
 class Ground {
  public:
   void initializeGL(GLuint program);
-  void paintGL();
+  void paintGL(int postion);
   void terminateGL();
 
  private:
@@ -15,6 +15,7 @@ class Ground {
 
   GLint m_modelMatrixLoc{};
   GLint m_colorLoc{};
+  GLint rederingTypeLocale{};
 };
 
 #endif

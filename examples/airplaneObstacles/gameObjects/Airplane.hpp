@@ -8,49 +8,69 @@
 
 class Airplane {
  public:
-  void loadDiffuseTexture(std::string_view path);
-  void loadObj(std::string_view path, bool standardize = true);
-  void render(GLint m_program, int numTriangles = -1);
-  void setupVAO(GLuint program);
+  void initializeGL(GLuint program, std::string assetsPath);
+  void paintGL(GameState gameSate, LightProperties light);
+  void resizeGL(int width, int height);
   void terminateGL();
-  glm::vec3 position{.0f, .5f, 0.0f};
-
-  [[nodiscard]] int getNumTriangles() const {
-    return static_cast<int>(m_indices.size()) / 3;
-  }
-
-  [[nodiscard]] glm::vec4 getKa() const { return m_Ka; }
-  [[nodiscard]] glm::vec4 getKd() const { return m_Kd; }
-  [[nodiscard]] glm::vec4 getKs() const { return m_Ks; }
-  [[nodiscard]] float getShininess() const { return m_shininess; }
-
-  [[nodiscard]] bool isUVMapped() const { return m_hasTexCoords; }
-
-  // void initializeGL(GLuint program, std::string assetsPath);
-  // void paintGL();
+  void initGame();
+  glm::vec3 position{.0f, 1.0f, 0.0f};
+  Rectangle colisionRect;
 
  private:
-  GLuint m_VAO{};
-  GLuint m_VBO{};
-  GLuint m_EBO{};
+  GLuint VAO{};
+  GLuint VBO{};
+  GLuint EBO{};
+  GLuint program{};
 
+  glm::vec3 rotate{0.0f, 1.0f, .0f};
+
+  std::vector<Vertex> vertices;
+  std::vector<GLuint> indices;
+  int64_t zeroTime{0};
+  glm::vec3 min;
+  glm::vec3 max;
+  glm::vec3 airplaneSize;
+
+  GLuint m_diffuseTexture{};
+  GLint rederingTypeLocale{};
+
+  void loadModelFromFile(std::string_view path, std::string texturePath);
+  void loadDiffuseTexture(std::string_view path);
+
+  void move();
+  void createBuffers();
+  void setupVAO();
+  void setLightConfig(LightProperties light);
+  void computeNormals();
+
+  glm::vec4 m_Ia{1.0f};
+  glm::vec4 m_Id{1.0f};
+  glm::vec4 m_Is{1.0f};
   glm::vec4 m_Ka;
   glm::vec4 m_Kd;
   glm::vec4 m_Ks;
-  float m_shininess;
-  GLuint m_diffuseTexture{};
-
-  std::vector<Vertex> m_vertices;
-  std::vector<GLuint> m_indices;
-
+  float m_shininess{10.0f};
   bool m_hasNormals{false};
   bool m_hasTexCoords{false};
 
-  void computeNormals();
-  void createBuffers();
-  void standardize();
+  //Controlls
+  void bindControlls();
+  void left();
+  void rigth();
+  int targetPosition{0};
+  float initialPosition{0};
+  float actualPosition{0};
+  float curveVelocity{0.003f};
+  int64_t movementStart{0};
+  const float positionModifier{1.15f};
+  const float curveVelocitybase{0.003f};
 
-  int64_t zeroTime{0};
+  //Forward Movement
+  float aceleration{-0.25f};
+  float velocity{-2.0f};
+  float forwardInitialPosition{30.0f};
+
+  //Props
+  float scale{0.00065f};
 };
-
 #endif

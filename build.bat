@@ -17,4 +17,4 @@ cmake --build . --config %BUILD_TYPE% -- -j %NUMBER_OF_PROCESSORS%
 
 cd ..
 
-.\build\bin\airplaneObstacles2\airplaneObstacles2.exe > log.txt 2>&1
+.\build\bin\airplaneObstacles\airplaneObstacles.exe > log.txt 2>&1

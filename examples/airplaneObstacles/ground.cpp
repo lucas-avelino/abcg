@@ -31,23 +31,25 @@ void Ground::initializeGL(GLuint program) {
   // Save location of uniform variables
   m_modelMatrixLoc = abcg::glGetUniformLocation(program, "modelMatrix");
   m_colorLoc = abcg::glGetUniformLocation(program, "color");
+  rederingTypeLocale = abcg::glGetUniformLocation(program, "rederingType");
 }
 
-void Ground::paintGL() {
+void Ground::paintGL(int position) {
   // Draw a grid of tiles centered on the xz plane
-  const int N{50};
 
   abcg::glBindVertexArray(m_VAO);
-  for (const auto z : iter::range(-N, N + 1)) {
-    for (const auto x : iter::range(-N, N + 1)) {
+  abcg::glUniform1i(rederingTypeLocale, 1);
+
+  for (const auto z : iter::range(position -20, position + 5 )) {
+    for (const auto x : iter::range(-10, 10)) {
       // Set model matrix
       glm::mat4 model{1.0f};
-      model = glm::translate(model, glm::vec3(x, -10.0f, z));
+      model = glm::translate(model, glm::vec3(x, 0.0f, z));
       abcg::glUniformMatrix4fv(m_modelMatrixLoc, 1, GL_FALSE, &model[0][0]);
 
       // Set color (checkerboard pattern)
       const float gray{(z + x) % 2 == 0 ? 1.0f : 0.5f};
-      abcg::glUniform4f(m_colorLoc, gray, gray, gray, 1.0f);
+      abcg::glUniform4f(m_colorLoc, 0, gray, 0, 1.0f);
 
       abcg::glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
     }

@@ -18,47 +18,107 @@ void OpenGLWindow::handleEvent(SDL_Event& event) {
   globalInput.handleEvent(event);
 }
 
+bool reactsCollision(Rectangle r1, Rectangle r2) {
+  // are the sides of one rectangle touching the other?
+
+  if (r1.coord.x + r1.size.x >= r2.coord.x &&  // r1 right edge past r2 left
+      r1.coord.x <= r2.coord.x + r2.size.x &&  // r1 left edge past r2 right
+      r1.coord.y + r1.size.y >= r2.coord.y &&  // r1 top edge past r2 bottom
+      r1.coord.y <= r2.coord.y + r2.size.y) {  // r1 bottom edge past r2 top
+    return true;
+  }
+  return false;
+}
+
+void OpenGLWindow::respawnBuildings() {
+  int newXPositionFirstItem = (rand() % 3) - 1;
+  int newXPositionSecondItem = (rand() % 3) - 1;
+  while (newXPositionFirstItem == newXPositionSecondItem)
+    newXPositionSecondItem = (rand() % 3) - 1;
+
+  BuildingDuple building = buildings.front();
+  buildings.pop_front();
+
+  building.building1.position.x = newXPositionFirstItem * 1.15f;
+  building.building1.position.z = building.building1.position.z - 30.0f;
+  building.building2.position.x = newXPositionSecondItem * 1.15f;
+  building.building2.position.z = building.building2.position.z - 30.0f;
+  buildings.push_back(building);
+}
+
+void OpenGLWindow::resetBuildings() {
+  int i = 0;
+  for (BuildingDuple& building : buildings) {
+    int newXPositionFirstItem = (rand() % 3) - 1;
+    int newXPositionSecondItem = (rand() % 3) - 1;
+    while (newXPositionFirstItem == newXPositionSecondItem)
+      newXPositionSecondItem = (rand() % 3) - 1;
+
+    building.building1.initGame(
+        glm::vec3(newXPositionFirstItem * 1.15f, 0, (-10.0f * i)));
+    building.building2.initGame(
+        glm::vec3(newXPositionSecondItem * 1.15f, 0, (-10.0f * i)));
+    i++;
+  }
+}
+
+void OpenGLWindow::spacePress() {
+  if (gameState.state == 0) {
+    resetBuildings();
+    airplane.initGame();
+    gameState.state = 1;
+    zeroTime = duration_cast<std::chrono::milliseconds>(
+                   std::chrono::system_clock::now().time_since_epoch())
+                   .count();
+  }
+  if (gameState.state == 2) {
+    resetBuildings();
+    airplane.initGame();
+    gameState.state = 0;
+  }
+}
+
 void OpenGLWindow::initializeGL() {
-  abcg::glClearColor(0, 0, 0, 1);
+  ImGuiIO& io{ImGui::GetIO()};
+  const auto filename{getAssetsPath() + "Inconsolata-Medium.ttf"};
+  font = io.Fonts->AddFontFromFileTTF(filename.c_str(), 60.0f);
+  if (font == nullptr) {
+    throw abcg::Exception{abcg::Exception::Runtime("Cannot load font file")};
+  }
+
+  abcg::glClearColor(0.529f, 0.807f, 0.921f, 1);
+
+  globalInput.addListener(SDLK_SPACE, SDL_KEYDOWN,
+                          std::bind(&OpenGLWindow::spacePress, this));
 
   // Enable depth buffering
   abcg::glEnable(GL_DEPTH_TEST);
 
   // Create program
-  // m_program = createProgramFromFile(getAssetsPath() + "lookat.vert",
-  //                                   getAssetsPath() + "lookat.frag");
-  // m_program = createProgramFromFile(getAssetsPath() + "lookat.vert",
-  //                                   getAssetsPath() + "lookat.frag");
+  solidColorProgram =
+      createProgramFromFile(getAssetsPath() + "solidColorShader.vert",
+                            getAssetsPath() + "solidColorShader.frag");
+  textureProgram =
+      createProgramFromFile(getAssetsPath() + "textureShader.vert",
+                            getAssetsPath() + "textureShader.frag");
 
-  // airplane.initializeGL(m_program, getAssetsPath());
-  // buildings.initializeGL(m_program, getAssetsPath());
-  // resizeGL(getWindowSettings().width, getWindowSettings().height);
+  m_ground.initializeGL(solidColorProgram);
+  airplane.initializeGL(textureProgram, getAssetsPath());
 
-  for (const auto& name : m_shaderNames) {
-    const auto path{getAssetsPath() + "shaders/" + name};
-    const auto program{createProgramFromFile(path + ".vert", path + ".frag")};
-    m_programs.push_back(program);
+  buildings.push_back(
+      BuildingDuple{.building1 = Building{glm::vec3(0, 0, .0f)},
+                    .building2 = Building{glm::vec3(1.15f, 0.0f, .0f)}});
+  buildings.push_back(
+      BuildingDuple{.building1 = Building{glm::vec3(-1.15f, 0, -10.0f)},
+                    .building2 = Building{glm::vec3(1.15f, 0, -10.0f)}});
+  buildings.push_back(
+      BuildingDuple{.building1 = Building{glm::vec3(-1.15f, 0, -20.0f)},
+                    .building2 = Building{glm::vec3(0, 0, -20.0f)}});
+
+  for (BuildingDuple& _building : buildings) {
+    _building.initializeGL(textureProgram, getAssetsPath());
   }
-
-  m_ground.initializeGL(m_programs.at(m_currentProgramIndex));
-  loadModel(getAssetsPath() + "11805_airplane_v2_L2.obj");
-  m_mappingMode = 3;
-
-}
-
-void OpenGLWindow::loadModel(std::string_view path) {
-  airplane.terminateGL();
-
-  airplane.loadDiffuseTexture(getAssetsPath() + "airplane_body_diffuse_v1.png");
-  airplane.loadObj(path);
-  airplane.setupVAO(m_programs.at(m_currentProgramIndex));
-  m_trianglesToDraw = airplane.getNumTriangles();
-
-  // Use material properties from the loaded model
-  m_Ka = airplane.getKa();
-  m_Kd = airplane.getKd();
-  m_Ks = airplane.getKs();
-  m_shininess = airplane.getShininess();
+  resizeGL(getWindowSettings().width, getWindowSettings().height);
 }
 
 void OpenGLWindow::paintGL() {
@@ -69,292 +129,173 @@ void OpenGLWindow::paintGL() {
 
   abcg::glViewport(0, 0, m_viewportWidth, m_viewportHeight);
 
-  const auto program{m_programs.at(m_currentProgramIndex)};
-  abcg::glUseProgram(program);
+  abcg::glUseProgram(solidColorProgram);
 
-  // Get location of uniform variables
-  const GLint viewMatrixLoc{abcg::glGetUniformLocation(program, "viewMatrix")};
-  const GLint projMatrixLoc{abcg::glGetUniformLocation(program, "projMatrix")};
-  const GLint modelMatrixLoc{
-      abcg::glGetUniformLocation(program, "modelMatrix")};
-  const GLint normalMatrixLoc{
-      abcg::glGetUniformLocation(program, "normalMatrix")};
-  const GLint lightDirLoc{
-      abcg::glGetUniformLocation(program, "lightDirWorldSpace")};
-  const GLint shininessLoc{abcg::glGetUniformLocation(program, "shininess")};
-  const GLint IaLoc{abcg::glGetUniformLocation(program, "Ia")};
-  const GLint IdLoc{abcg::glGetUniformLocation(program, "Id")};
-  const GLint IsLoc{abcg::glGetUniformLocation(program, "Is")};
-  const GLint KaLoc{abcg::glGetUniformLocation(program, "Ka")};
-  const GLint KdLoc{abcg::glGetUniformLocation(program, "Kd")};
-  const GLint KsLoc{abcg::glGetUniformLocation(program, "Ks")};
-  const GLint diffuseTexLoc{abcg::glGetUniformLocation(program, "diffuseTex")};
-  const GLint mappingModeLoc{
-      abcg::glGetUniformLocation(program, "mappingMode")};
+  // Get location of uniform variables (could be precomputed)
+  GLint viewMatrixLoc{
+      abcg::glGetUniformLocation(solidColorProgram, "viewMatrix")};
+  GLint projMatrixLoc{
+      abcg::glGetUniformLocation(solidColorProgram, "projMatrix")};
+  GLint normalMatrixLoc{
+      abcg::glGetUniformLocation(solidColorProgram, "normalMatrix")};
 
-  // Set uniform variables used by every scene object
-  abcg::glUniformMatrix4fv(viewMatrixLoc, 1, GL_FALSE, &m_viewMatrix[0][0]);
-  abcg::glUniformMatrix4fv(projMatrixLoc, 1, GL_FALSE, &m_projMatrix[0][0]);
-  abcg::glUniform1i(diffuseTexLoc, 0);
-  abcg::glUniform1i(mappingModeLoc, m_mappingMode);
+  // Set uniform variables for viewMatrix and projMatrix
+  // These matrices are used for every scene object
+  abcg::glUniformMatrix4fv(viewMatrixLoc, 1, GL_FALSE,
+                           &m_camera.m_viewMatrix[0][0]);
+  abcg::glUniformMatrix4fv(projMatrixLoc, 1, GL_FALSE,
+                           &m_camera.m_projMatrix[0][0]);
 
-  // const auto lightDirRotated{m_trackBallLight.getRotation() * m_lightDir};
-  // abcg::glUniform4fv(lightDirLoc, 1, &lightDirRotated.x);
-  abcg::glUniform4fv(IaLoc, 1, &m_Ia.x);
-  abcg::glUniform4fv(IdLoc, 1, &m_Id.x);
-  abcg::glUniform4fv(IsLoc, 1, &m_Is.x);
-
-  // Set uniform variables of the current object
-  abcg::glUniformMatrix4fv(modelMatrixLoc, 1, GL_FALSE, &m_modelMatrix[0][0]);
-
-  const auto modelViewMatrix{glm::mat3(m_viewMatrix * m_modelMatrix)};
+  const auto modelViewMatrix{
+      glm::mat3(m_camera.m_viewMatrix * m_camera.m_projMatrix)};
   glm::mat3 normalMatrix{glm::inverseTranspose(modelViewMatrix)};
+
   abcg::glUniformMatrix3fv(normalMatrixLoc, 1, GL_FALSE, &normalMatrix[0][0]);
 
-  abcg::glUniform1f(shininessLoc, m_shininess);
-  abcg::glUniform4fv(KaLoc, 1, &m_Ka.x);
-  abcg::glUniform4fv(KdLoc, 1, &m_Kd.x);
-  abcg::glUniform4fv(KsLoc, 1, &m_Ks.x);
+  m_ground.paintGL(floor(airplane.position.z));
 
-  // m_model.render(m_trianglesToDraw);
-  airplane.render(program, m_trianglesToDraw);
-  // airplane.paintGL();
-  // buildings.paintGL();
-  // Draw ground
-  m_ground.paintGL();
+  abcg::glUseProgram(textureProgram);
+
+  // Get location of uniform variables (could be precomputed)
+  viewMatrixLoc = abcg::glGetUniformLocation(textureProgram, "viewMatrix");
+  projMatrixLoc = abcg::glGetUniformLocation(textureProgram, "projMatrix");
+  normalMatrixLoc = abcg::glGetUniformLocation(textureProgram, "normalMatrix");
+
+  // Set uniform variables for viewMatrix and projMatrix
+  // These matrices are used for every scene object
+  abcg::glUniformMatrix4fv(viewMatrixLoc, 1, GL_FALSE,
+                           &m_camera.m_viewMatrix[0][0]);
+  abcg::glUniformMatrix4fv(projMatrixLoc, 1, GL_FALSE,
+                           &m_camera.m_projMatrix[0][0]);
+  glm::mat3 normalMatrix_{glm::inverseTranspose(
+      glm::mat3(m_camera.m_viewMatrix * m_camera.m_projMatrix))};
+
+  abcg::glUniformMatrix3fv(normalMatrixLoc, 1, GL_FALSE, &normalMatrix_[0][0]);
+
+  airplane.paintGL(gameState, LightProperties{.Ia = m_Ia,
+                                              .Id = m_Id,
+                                              .Is = m_Is,
+                                              .shininess = m_shininess,
+                                              .lighDir = lighDir});
+
+  gameState.points = floor(-airplane.position.z);
+  gameState.points = gameState.points < 0 ? 0 : gameState.points;
+
+  for (BuildingDuple& _building : buildings) {
+    _building.paintGL(LightProperties{.Ia = m_Ia,
+                                      .Id = m_Id,
+                                      .Is = m_Is,
+                                      .shininess = m_shininess,
+                                      .lighDir = lighDir});
+  }
+  // fmt::print("--> ({}, {}) \n", airplane.colisionRect.toString(),
+  //            buildings.front().building1.colisionRect.toString());
+
+  int airplaneZPositionFloor = floor(airplane.position.z);
+
+  // Only check colision with airplane is near to 10 multiples
+  if (gameState.state == 1 && airplaneZPositionFloor < 1 &&
+      airplaneZPositionFloor % 10 == 0) {
+    if (reactsCollision(buildings.front().building1.colisionRect,
+                        airplane.colisionRect) ||
+        reactsCollision(buildings.front().building2.colisionRect,
+                        airplane.colisionRect)) {
+      gameState.state = 2;
+      fmt::print("Collision \n");
+    }
+  }
+
+  if (buildings.front().building1.position.z > airplane.position.z + 4)
+    respawnBuildings();
 
   abcg::glUseProgram(0);
 }
 
 void OpenGLWindow::paintUI() {
   abcg::OpenGLWindow::paintUI();
-
-  // File browser for models
-  // static ImGui::FileBrowser fileDialogModel;
-  // fileDialogModel.SetTitle("Load 3D Model");
-  // fileDialogModel.SetTypeFilters({".obj"});
-  // fileDialogModel.SetWindowSize(m_viewportWidth * 0.8f,
-  //                               m_viewportHeight * 0.8f);
-
-  // // File browser for textures
-  // static ImGui::FileBrowser fileDialogTex;
-  // fileDialogTex.SetTitle("Load Texture");
-  // fileDialogTex.SetTypeFilters({".jpg", ".png"});
-  // fileDialogTex.SetWindowSize(m_viewportWidth * 0.8f, m_viewportHeight * 0.8f);
-
-// Only in WebGL
-#if defined(__EMSCRIPTEN__)
-  fileDialogModel.SetPwd(getAssetsPath());
-  fileDialogTex.SetPwd(getAssetsPath() + "/maps");
-#endif
-
-  // Create main window widget
   {
-    auto widgetSize{ImVec2(222, 190)};
+    const auto size{ImVec2(m_viewportWidth, m_viewportHeight)};
 
-    if (!airplane.isUVMapped()) {
-      // Add extra space for static text
-      widgetSize.y += 26;
-    }
+    const auto position{ImVec2((size.x / 2) - 5, 0.0f)};
 
-    ImGui::SetNextWindowPos(ImVec2(m_viewportWidth - widgetSize.x - 5, 5));
-    ImGui::SetNextWindowSize(widgetSize);
-    const auto flags{ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDecoration};
-    ImGui::Begin("Widget window", nullptr, flags);
+    ImGui::SetNextWindowPos(position);
+    ImGui::SetNextWindowSize(size);
+    ImGui::Begin(" ", nullptr,
+                 ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoTitleBar |
+                     ImGuiWindowFlags_NoInputs);
 
-    // Menu
-    {
-      bool loadModel{};
-      bool loadDiffTex{};
-      if (ImGui::BeginMenuBar()) {
-        if (ImGui::BeginMenu("File")) {
-          ImGui::MenuItem("Load 3D Model...", nullptr, &loadModel);
-          ImGui::MenuItem("Load Diffuse Texture...", nullptr, &loadDiffTex);
-          ImGui::EndMenu();
-        }
-        ImGui::EndMenuBar();
-      }
-      // if (loadModel) fileDialogModel.Open();
-      // if (loadDiffTex) fileDialogTex.Open();
-    }
+    // font->FontSize = .025f;
+    // setFontSize(1);
+    font->Scale = 1.0f;
+    ImGui::PushFont(font);
+    ImGui::Text("%i", gameState.points);
 
-    // Slider will be stretched horizontally
-    ImGui::PushItemWidth(widgetSize.x - 16);
-    ImGui::SliderInt("", &m_trianglesToDraw, 0, airplane.getNumTriangles(),
-                     "%d triangles");
-    ImGui::PopItemWidth();
-
-    static bool faceCulling{};
-    ImGui::Checkbox("Back-face culling", &faceCulling);
-
-    if (faceCulling) {
-      abcg::glEnable(GL_CULL_FACE);
-    } else {
-      abcg::glDisable(GL_CULL_FACE);
-    }
-
-    // CW/CCW combo box
-    {
-      static std::size_t currentIndex{};
-      std::vector<std::string> comboItems{"CCW", "CW"};
-
-      ImGui::PushItemWidth(120);
-      if (ImGui::BeginCombo("Front face",
-                            comboItems.at(currentIndex).c_str())) {
-        for (auto index : iter::range(comboItems.size())) {
-          const bool isSelected{currentIndex == index};
-          if (ImGui::Selectable(comboItems.at(index).c_str(), isSelected))
-            currentIndex = index;
-          if (isSelected) ImGui::SetItemDefaultFocus();
-        }
-        ImGui::EndCombo();
-      }
-      ImGui::PopItemWidth();
-
-      if (currentIndex == 0) {
-        abcg::glFrontFace(GL_CCW);
-      } else {
-        abcg::glFrontFace(GL_CW);
-      }
-    }
-
-    // Projection combo box
-    {
-      static std::size_t currentIndex{};
-      std::vector<std::string> comboItems{"Perspective", "Orthographic"};
-
-      ImGui::PushItemWidth(120);
-      if (ImGui::BeginCombo("Projection",
-                            comboItems.at(currentIndex).c_str())) {
-        for (auto index : iter::range(comboItems.size())) {
-          const bool isSelected{currentIndex == index};
-          if (ImGui::Selectable(comboItems.at(index).c_str(), isSelected))
-            currentIndex = index;
-          if (isSelected) ImGui::SetItemDefaultFocus();
-        }
-        ImGui::EndCombo();
-      }
-      ImGui::PopItemWidth();
-
-      const auto aspect{static_cast<float>(m_viewportWidth) /
-                        static_cast<float>(m_viewportHeight)};
-      if (currentIndex == 0) {
-        m_projMatrix =
-            glm::perspective(glm::radians(45.0f), aspect, 0.1f, 5.0f);
-
-      } else {
-        m_projMatrix =
-            glm::ortho(-1.0f * aspect, 1.0f * aspect, -1.0f, 1.0f, 0.1f, 5.0f);
-      }
-    }
-
-    // Shader combo box
-    {
-      static std::size_t currentIndex{};
-
-      ImGui::PushItemWidth(120);
-      if (ImGui::BeginCombo("Shader", m_shaderNames.at(currentIndex))) {
-        for (auto index : iter::range(m_shaderNames.size())) {
-          const bool isSelected{currentIndex == index};
-          if (ImGui::Selectable(m_shaderNames.at(index), isSelected))
-            currentIndex = index;
-          if (isSelected) ImGui::SetItemDefaultFocus();
-        }
-        ImGui::EndCombo();
-      }
-      ImGui::PopItemWidth();
-
-      // Set up VAO if shader program has changed
-      if (static_cast<int>(currentIndex) != m_currentProgramIndex) {
-        m_currentProgramIndex = currentIndex;
-        airplane.setupVAO(m_programs.at(m_currentProgramIndex));
-        m_ground.initializeGL(m_programs.at(m_currentProgramIndex));
-      }
-    }
-
-    if (!airplane.isUVMapped()) {
-      ImGui::TextColored(ImVec4(1, 1, 0, 1), "Mesh has no UV coords.");
-    }
-
-    // UV mapping box
-    {
-      std::vector<std::string> comboItems{"Triplanar", "Cylindrical",
-                                          "Spherical"};
-
-      if (airplane.isUVMapped()) comboItems.emplace_back("From mesh");
-
-      ImGui::PushItemWidth(120);
-      if (ImGui::BeginCombo("UV mapping",
-                            comboItems.at(m_mappingMode).c_str())) {
-        for (auto index : iter::range(comboItems.size())) {
-          const bool isSelected{m_mappingMode == static_cast<int>(index)};
-          if (ImGui::Selectable(comboItems.at(index).c_str(), isSelected))
-            m_mappingMode = index;
-          if (isSelected) ImGui::SetItemDefaultFocus();
-        }
-        ImGui::EndCombo();
-      }
-      ImGui::PopItemWidth();
-    }
-
+    ImGui::PopFont();
     ImGui::End();
+    if (gameState.state == 0) {
+      ImGui::SetNextWindowPos(ImVec2{(size.x / 2) - 250, (size.y / 2) - 50});
+      ImGui::SetNextWindowSize(ImVec2(600, 200));
+      ImGui::Begin("  ", nullptr,
+                   ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoTitleBar |
+                       ImGuiWindowFlags_NoInputs);
+
+      // this->font->Scale = 0.5f;
+
+      // setFontSize(0);
+      font->Scale = 0.5f;
+      ImGui::PushFont(this->font);
+      ImGui::Text("Pressione 'space' para iniciar o jogo");
+
+      ImGui::PopFont();
+      ImGui::End();
+    }
+    if (gameState.state == 2) {
+      ImGui::SetNextWindowPos(ImVec2{(size.x / 2) - 150, (size.y / 2) - 50});
+      ImGui::SetNextWindowSize(ImVec2(400, 100));
+      ImGui::Begin("  ", nullptr,
+                   ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoTitleBar |
+                       ImGuiWindowFlags_NoInputs);
+      // this->font->Scale = 2.0f;
+      // setFontSize(1);
+      font->Scale = 1.0f;
+      ImGui::PushFont(this->font);
+      ImGui::Text("Você perdeu");
+
+      ImGui::PopFont();
+      ImGui::End();
+    }
+
+    // const auto widgetSize{ImVec2(222, 244)};
+    // ImGui::SetNextWindowPos(ImVec2(m_viewportWidth - widgetSize.x - 5,
+    //                                m_viewportHeight - widgetSize.y - 5));
+    // ImGui::SetNextWindowSize(widgetSize);
+    // ImGui::Begin(" ", nullptr, ImGuiWindowFlags_NoDecoration);
+
+    // ImGui::Text("Light properties");
+
+    // // Slider to control light properties
+    // ImGui::PushItemWidth(widgetSize.x - 36);
+    // ImGui::ColorEdit3("Ia", &m_Ia.x, ImGuiColorEditFlags_Float);
+    // ImGui::ColorEdit3("Id", &m_Id.x, ImGuiColorEditFlags_Float);
+    // ImGui::ColorEdit3("Is", &m_Is.x, ImGuiColorEditFlags_Float);
+    // ImGui::PopItemWidth();
+
+    // ImGui::Spacing();
+    // ImGui::PushItemWidth(widgetSize.x - 36);
+    // ImGui::ColorEdit3("coords", &lighDir.x, ImGuiColorEditFlags_Float);
+    // // ImGui::ColorEdit3("y", &m_Id.x, ImGuiColorEditFlags_Float);
+    // // ImGui::ColorEdit3("z", &m_Is.x, ImGuiColorEditFlags_Float);
+    // ImGui::PopItemWidth();
+
+    // ImGui::Spacing();
+
+    // // Slider to control the specular shininess
+    // ImGui::PushItemWidth(widgetSize.x - 16);
+    // ImGui::SliderFloat("", &m_shininess, 0.0f, 500.0f, "shininess: %.1f");
+    // ImGui::PopItemWidth();
+
+    // ImGui::End();
   }
-
-  // Create window for light sources
-  if (m_currentProgramIndex < 4) {
-    const auto widgetSize{ImVec2(222, 244)};
-    ImGui::SetNextWindowPos(ImVec2(m_viewportWidth - widgetSize.x - 5,
-                                   m_viewportHeight - widgetSize.y - 5));
-    ImGui::SetNextWindowSize(widgetSize);
-    ImGui::Begin(" ", nullptr, ImGuiWindowFlags_NoDecoration);
-
-    ImGui::Text("Light properties");
-
-    // Slider to control light properties
-    ImGui::PushItemWidth(widgetSize.x - 36);
-    ImGui::ColorEdit3("Ia", &m_Ia.x, ImGuiColorEditFlags_Float);
-    ImGui::ColorEdit3("Id", &m_Id.x, ImGuiColorEditFlags_Float);
-    ImGui::ColorEdit3("Is", &m_Is.x, ImGuiColorEditFlags_Float);
-    ImGui::PopItemWidth();
-
-    ImGui::Spacing();
-
-    ImGui::Text("Material properties");
-
-    // Slider to control material properties
-    ImGui::PushItemWidth(widgetSize.x - 36);
-    ImGui::ColorEdit3("Ka", &m_Ka.x, ImGuiColorEditFlags_Float);
-    ImGui::ColorEdit3("Kd", &m_Kd.x, ImGuiColorEditFlags_Float);
-    ImGui::ColorEdit3("Ks", &m_Ks.x, ImGuiColorEditFlags_Float);
-    ImGui::PopItemWidth();
-
-    // Slider to control the specular shininess
-    ImGui::PushItemWidth(widgetSize.x - 16);
-    ImGui::SliderFloat("", &m_shininess, 0.0f, 500.0f, "shininess: %.1f");
-    ImGui::PopItemWidth();
-
-    ImGui::End();
-  }
-
-  // fileDialogModel.Display();
-  // if (fileDialogModel.HasSelected()) {
-  //   loadModel(fileDialogModel.GetSelected().string());
-  //   fileDialogModel.ClearSelected();
-
-  //   if (m_model.isUVMapped()) {
-  //     // Use mesh texture coordinates if available...
-  //     m_mappingMode = 3;
-  //   } else {
-  //     // ...or triplanar mapping otherwise
-  //     m_mappingMode = 0;
-  //   }
-  // }
-
-  // fileDialogTex.Display();
-  // if (fileDialogTex.HasSelected()) {
-  //   m_model.loadDiffuseTexture(fileDialogTex.GetSelected().string());
-  //   fileDialogTex.ClearSelected();
-  // }
 }
 
 void OpenGLWindow::resizeGL(int width, int height) {
@@ -367,8 +308,9 @@ void OpenGLWindow::resizeGL(int width, int height) {
 void OpenGLWindow::terminateGL() {
   m_ground.terminateGL();
   airplane.terminateGL();
-  // buildings.terminateGL();
-  abcg::glDeleteProgram(m_program);
+  for (auto _building : buildings) _building.terminateGL();
+  abcg::glDeleteProgram(solidColorProgram);
+  abcg::glDeleteProgram(textureProgram);
 }
 void OpenGLWindow::update() {
   const float deltaTime{static_cast<float>(getDeltaTime())};
@@ -379,7 +321,7 @@ void OpenGLWindow::update() {
   m_camera.pan(m_panSpeed * deltaTime);
 
   m_camera.follow(airplane.position);
-
-  m_modelMatrix = m_camera.m_projMatrix;
-  m_viewMatrix = m_camera.m_viewMatrix;
 }
+
+// bool reactsCollision(float r1x, float r1y, float r1w, float r1h, float r2x,
+// float r2y, float r2w, float r2h)
