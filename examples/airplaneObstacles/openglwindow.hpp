@@ -48,9 +48,6 @@ class OpenGLWindow : public abcg::OpenGLWindow {
 
   void spacePress();
 
-  // Timer
-  int64_t zeroTime{0};
-
   // Light
   glm::vec4 m_Ia{1.0f};
   glm::vec4 m_Id{1.0f};

@@ -67,9 +67,6 @@ void OpenGLWindow::spacePress() {
     resetBuildings();
     airplane.initGame();
     gameState.state = 1;
-    zeroTime = duration_cast<std::chrono::milliseconds>(
-                   std::chrono::system_clock::now().time_since_epoch())
-                   .count();
   }
   if (gameState.state == 2) {
     resetBuildings();
