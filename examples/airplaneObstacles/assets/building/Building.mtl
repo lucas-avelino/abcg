@@ -12,8 +12,8 @@ newmtl 01___Default
 	Kd 0.588235 0.588235 0.588235
 	Ks 0.000000 0.000000 0.000000
 	Ke 0.000000 0.000000 0.000000
-	map_Ka Textures\MGH_IMG_3288.jpg
-	map_Kd Textures\MGH_IMG_3288.jpg
+	map_Ka textures/texture1.jpg
+	map_Kd textures/texture1.jpg
 
 newmtl 02___Default
 	Ns 9.999999
@@ -26,8 +26,8 @@ newmtl 02___Default
 	Kd 0.588235 0.588235 0.588235
 	Ks 0.000000 0.000000 0.000000
 	Ke 0.000000 0.000000 0.000000
-	map_Ka Textures\MAF_Buildings_Roof_detail.jpg
-	map_Kd Textures\MAF_Buildings_Roof_detail.jpg
+	map_Ka textures/texture2.jpg
+	map_Kd textures/texture2.jpg
 
 newmtl Material__58
 	Ns 9.999999
@@ -40,8 +40,8 @@ newmtl Material__58
 	Kd 0.588235 0.588235 0.588235
 	Ks 0.000000 0.000000 0.000000
 	Ke 0.000000 0.000000 0.000000
-	map_Ka Textures\MAF_Buildings_Roof_detail.jpg
-	map_Kd Textures\MAF_Buildings_Roof_detail.jpg
+	map_Ka textures/texture2.jpg
+	map_Kd textures/texture2.jpg
 
 newmtl 04___Default
 	Ns 9.999999

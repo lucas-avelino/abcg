@@ -234,7 +234,7 @@ void Building::loadModelFromFile(std::string_view path,
   // Use properties of first material, if available
   if (!materials.empty()) {
     for (const auto groupOffset : iter::range(materials.size())) {
-      fmt::print("loading textures {}/{}\n", groupOffset, materials.size());
+      fmt::print("loading Materials {}/{}\n", groupOffset+1, materials.size());
       const auto& mat{materials.at(groupOffset)};  // First material
       m_Ka.push_back(
           glm::vec4(mat.ambient[0], mat.ambient[1], mat.ambient[2], 1));
@@ -245,6 +245,8 @@ void Building::loadModelFromFile(std::string_view path,
       m_shininess.push_back(mat.shininess);
 
       if (!mat.diffuse_texname.empty()) {
+        printf("diffuse_texname \n");
+        fmt::print("loading Texture {}\n", assetsPath + mat.diffuse_texname);
         const auto texture =
             abcg::opengl::loadTexture(assetsPath + mat.diffuse_texname);
         m_diffuseTexture.push_back(texture);

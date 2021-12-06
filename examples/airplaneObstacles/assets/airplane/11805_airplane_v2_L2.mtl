@@ -12,8 +12,8 @@ newmtl airplane_body
 	Kd 1.0000 1.0000 1.0000
 	Ks 0.4950 0.4950 0.4950
 	Ke 0.0000 0.0000 0.0000
-	map_Ka Texture.jpg
-	map_Kd Texture.jpg
+	map_Ka texture/texture.jpg
+	map_Kd texture/texture.jpg
 
 newmtl airplane_wings
 	Ns 20.0000
@@ -26,5 +26,5 @@ newmtl airplane_wings
 	Kd 1.0000 1.0000 1.0000
 	Ks 0.4950 0.4950 0.4950
 	Ke 0.0000 0.0000 0.0000
-	map_Ka Texture.jpg
-	map_Kd Texture.jpg
+	map_Ka texture/texture.jpg
+	map_Kd texture/texture.jpg

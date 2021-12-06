@@ -130,13 +130,11 @@ void Airplane::initializeGL(GLuint program, std::string assetsPath) {
   bindControlls();
   this->program = program;
 
-  loadDiffuseTexture(assetsPath + "airplane/texture.jpg");
   loadModelFromFile(assetsPath + "airplane/11805_airplane_v2_L2.obj",
                     assetsPath + "airplane/");
 
   createBuffers();
   setupVAO();
-  rederingTypeLocale = abcg::glGetUniformLocation(program, "rederingType");
 
   // resizeGL(getWindowSettings().width, getWindowSettings().height);
   zeroTime = duration_cast<std::chrono::milliseconds>(
@@ -325,7 +323,6 @@ void Airplane::paintGL(GameState gameSate, LightProperties light) {
 
   abcg::glActiveTexture(GL_TEXTURE0);
   abcg::glBindTexture(GL_TEXTURE_2D, m_diffuseTexture);
-  abcg::glUniform1i(rederingTypeLocale, 0);
 
   // Set minification and magnification parameters
   abcg::glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
