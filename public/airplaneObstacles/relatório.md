@@ -48,6 +48,10 @@ void Airplane::bindControlls();
 ```
 A proxima função do ciclo de vida é a `void paintGL(GameState gameSate, LightProperties light);`, função essa responsável pelo render frame by frame do avião, além do acionamento da função `void move();` que realiza os movimentos descritos na explicação de "Movimento".
 
+### Building.cpp
+Classe responsável pelo render dos obstaculos a classe não contém muita lógica do jogo porém é a unica que usa multiplas texturas para rendering.
+Durante o desenvolvimento tive muita dificuldade em achar modelos de prédios que tivessem apena 1 arquivo de textura, esse fato fez com que eu decidisse refatorar a forma de dar load o no objeto o principal objetivo do refactor era fazer com que eu mandasse texturas diferentes pra grupos diferentes de vertices, a ideia foi transformar os buffers e dados de vertices em um array de agrupados, isso foi simples quando o que ja tinha no codigo de importação "flat" então usei os shapes dentro da função `loadModelFromFile` e agrupei os vertices por eles, após isso bastou ler todas as texturas ao inves de pegar apenas a primeira e fazer com que as funções de render e de buffer initialization funcionassem usando um array de dados.
+
 ### Modelos
 O modelos estão disponiveis na internet de graça nos links:
 - [Avião](https://free3d.com/pt/3d-model/airplane-v2--549103.html);
