@@ -49,9 +49,6 @@ class Building {
   void setLightConfig(LightProperties light, int textureIndex);
   void computeNormals();
 
-  glm::vec4 m_Ia{1.0f};
-  glm::vec4 m_Id{1.0f};
-  glm::vec4 m_Is{1.0f};
   std::vector<glm::vec4> m_Ka;
   std::vector<glm::vec4> m_Kd;
   std::vector<glm::vec4> m_Ks;

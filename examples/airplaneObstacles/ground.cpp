@@ -40,7 +40,7 @@ void Ground::paintGL(int position) {
   abcg::glBindVertexArray(m_VAO);
   abcg::glUniform1i(rederingTypeLocale, 1);
 
-  for (const auto z : iter::range(position -20, position + 5 )) {
+  for (const auto z : iter::range(position -20, position + 4 )) {
     for (const auto x : iter::range(-10, 10)) {
       // Set model matrix
       glm::mat4 model{1.0f};
@@ -48,8 +48,8 @@ void Ground::paintGL(int position) {
       abcg::glUniformMatrix4fv(m_modelMatrixLoc, 1, GL_FALSE, &model[0][0]);
 
       // Set color (checkerboard pattern)
-      const float gray{(z + x) % 2 == 0 ? 1.0f : 0.5f};
-      abcg::glUniform4f(m_colorLoc, 0, gray, 0, 1.0f);
+      const float gray{(z + x) % 2 == 0 ? 1.0f : 0.9f};
+      abcg::glUniform4f(m_colorLoc, 0.423f*gray, 0.411f*gray, 0.396f*gray, 1.0f);
 
       abcg::glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
     }

@@ -1,1 +1,127 @@
-O sistema n∆o pode encontrar o caminho especificado.
+Using GLEW.....: 2.2.0
+OpenGL vendor..: NVIDIA Corporation
+OpenGL renderer: GeForce GT 1030/PCIe/SSE2
+OpenGL version.: 4.1.0 NVIDIA 456.71
+GLSL version...: 4.10 NVIDIA via Cg compiler
+[EventListener]: addded event total of 1
+[EventListener]: addded event total of 2
+[EventListener]: addded event total of 3
+Warning: Both `d` and `Tr` parameters defined for "airplane_body". Use the value of `d` for dissolve (line 8 in .mtl.)
+Both `d` and `Tr` parameters defined for "airplane_wings". Use the value of `d` for dissolve (line 22 in .mtl.)
+
+Warning: Both `d` and `Tr` parameters defined for "01___Default". Use the value of `d` for dissolve (line 8 in .mtl.)
+Both `d` and `Tr` parameters defined for "02___Default". Use the value of `d` for dissolve (line 22 in .mtl.)
+Both `d` and `Tr` parameters defined for "Material__58". Use the value of `d` for dissolve (line 36 in .mtl.)
+Both `d` and `Tr` parameters defined for "04___Default". Use the value of `d` for dissolve (line 50 in .mtl.)
+Both `d` and `Tr` parameters defined for "Material__150". Use the value of `d` for dissolve (line 62 in .mtl.)
+Both `d` and `Tr` parameters defined for "Standard_2". Use the value of `d` for dissolve (line 74 in .mtl.)
+
+Loading Materials 1/6
+Loading Texture .\build\bin\airplaneObstacles/assets/building/textures/texture1.jpg
+Loading Materials 2/6
+Loading Texture .\build\bin\airplaneObstacles/assets/building/textures/texture2.jpg
+Loading Materials 3/6
+Loading Texture .\build\bin\airplaneObstacles/assets/building/textures/texture2.jpg
+Loading Materials 4/6
+Loading Materials 5/6
+Loading Materials 6/6
+Textures loaded
+Normals computed
+Created Buffers
+Warning: Both `d` and `Tr` parameters defined for "01___Default". Use the value of `d` for dissolve (line 8 in .mtl.)
+Both `d` and `Tr` parameters defined for "02___Default". Use the value of `d` for dissolve (line 22 in .mtl.)
+Both `d` and `Tr` parameters defined for "Material__58". Use the value of `d` for dissolve (line 36 in .mtl.)
+Both `d` and `Tr` parameters defined for "04___Default". Use the value of `d` for dissolve (line 50 in .mtl.)
+Both `d` and `Tr` parameters defined for "Material__150". Use the value of `d` for dissolve (line 62 in .mtl.)
+Both `d` and `Tr` parameters defined for "Standard_2". Use the value of `d` for dissolve (line 74 in .mtl.)
+
+Loading Materials 1/6
+Loading Texture .\build\bin\airplaneObstacles/assets/building/textures/texture1.jpg
+Loading Materials 2/6
+Loading Texture .\build\bin\airplaneObstacles/assets/building/textures/texture2.jpg
+Loading Materials 3/6
+Loading Texture .\build\bin\airplaneObstacles/assets/building/textures/texture2.jpg
+Loading Materials 4/6
+Loading Materials 5/6
+Loading Materials 6/6
+Textures loaded
+Normals computed
+Created Buffers
+Warning: Both `d` and `Tr` parameters defined for "01___Default". Use the value of `d` for dissolve (line 8 in .mtl.)
+Both `d` and `Tr` parameters defined for "02___Default". Use the value of `d` for dissolve (line 22 in .mtl.)
+Both `d` and `Tr` parameters defined for "Material__58". Use the value of `d` for dissolve (line 36 in .mtl.)
+Both `d` and `Tr` parameters defined for "04___Default". Use the value of `d` for dissolve (line 50 in .mtl.)
+Both `d` and `Tr` parameters defined for "Material__150". Use the value of `d` for dissolve (line 62 in .mtl.)
+Both `d` and `Tr` parameters defined for "Standard_2". Use the value of `d` for dissolve (line 74 in .mtl.)
+
+Loading Materials 1/6
+Loading Texture .\build\bin\airplaneObstacles/assets/building/textures/texture1.jpg
+Loading Materials 2/6
+Loading Texture .\build\bin\airplaneObstacles/assets/building/textures/texture2.jpg
+Loading Materials 3/6
+Loading Texture .\build\bin\airplaneObstacles/assets/building/textures/texture2.jpg
+Loading Materials 4/6
+Loading Materials 5/6
+Loading Materials 6/6
+Textures loaded
+Normals computed
+Created Buffers
+Warning: Both `d` and `Tr` parameters defined for "01___Default". Use the value of `d` for dissolve (line 8 in .mtl.)
+Both `d` and `Tr` parameters defined for "02___Default". Use the value of `d` for dissolve (line 22 in .mtl.)
+Both `d` and `Tr` parameters defined for "Material__58". Use the value of `d` for dissolve (line 36 in .mtl.)
+Both `d` and `Tr` parameters defined for "04___Default". Use the value of `d` for dissolve (line 50 in .mtl.)
+Both `d` and `Tr` parameters defined for "Material__150". Use the value of `d` for dissolve (line 62 in .mtl.)
+Both `d` and `Tr` parameters defined for "Standard_2". Use the value of `d` for dissolve (line 74 in .mtl.)
+
+Loading Materials 1/6
+Loading Texture .\build\bin\airplaneObstacles/assets/building/textures/texture1.jpg
+Loading Materials 2/6
+Loading Texture .\build\bin\airplaneObstacles/assets/building/textures/texture2.jpg
+Loading Materials 3/6
+Loading Texture .\build\bin\airplaneObstacles/assets/building/textures/texture2.jpg
+Loading Materials 4/6
+Loading Materials 5/6
+Loading Materials 6/6
+Textures loaded
+Normals computed
+Created Buffers
+Warning: Both `d` and `Tr` parameters defined for "01___Default". Use the value of `d` for dissolve (line 8 in .mtl.)
+Both `d` and `Tr` parameters defined for "02___Default". Use the value of `d` for dissolve (line 22 in .mtl.)
+Both `d` and `Tr` parameters defined for "Material__58". Use the value of `d` for dissolve (line 36 in .mtl.)
+Both `d` and `Tr` parameters defined for "04___Default". Use the value of `d` for dissolve (line 50 in .mtl.)
+Both `d` and `Tr` parameters defined for "Material__150". Use the value of `d` for dissolve (line 62 in .mtl.)
+Both `d` and `Tr` parameters defined for "Standard_2". Use the value of `d` for dissolve (line 74 in .mtl.)
+
+Loading Materials 1/6
+Loading Texture .\build\bin\airplaneObstacles/assets/building/textures/texture1.jpg
+Loading Materials 2/6
+Loading Texture .\build\bin\airplaneObstacles/assets/building/textures/texture2.jpg
+Loading Materials 3/6
+Loading Texture .\build\bin\airplaneObstacles/assets/building/textures/texture2.jpg
+Loading Materials 4/6
+Loading Materials 5/6
+Loading Materials 6/6
+Textures loaded
+Normals computed
+Created Buffers
+Warning: Both `d` and `Tr` parameters defined for "01___Default". Use the value of `d` for dissolve (line 8 in .mtl.)
+Both `d` and `Tr` parameters defined for "02___Default". Use the value of `d` for dissolve (line 22 in .mtl.)
+Both `d` and `Tr` parameters defined for "Material__58". Use the value of `d` for dissolve (line 36 in .mtl.)
+Both `d` and `Tr` parameters defined for "04___Default". Use the value of `d` for dissolve (line 50 in .mtl.)
+Both `d` and `Tr` parameters defined for "Material__150". Use the value of `d` for dissolve (line 62 in .mtl.)
+Both `d` and `Tr` parameters defined for "Standard_2". Use the value of `d` for dissolve (line 74 in .mtl.)
+
+Loading Materials 1/6
+Loading Texture .\build\bin\airplaneObstacles/assets/building/textures/texture1.jpg
+Loading Materials 2/6
+Loading Texture .\build\bin\airplaneObstacles/assets/building/textures/texture2.jpg
+Loading Materials 3/6
+Loading Texture .\build\bin\airplaneObstacles/assets/building/textures/texture2.jpg
+Loading Materials 4/6
+Loading Materials 5/6
+Loading Materials 6/6
+Textures loaded
+Normals computed
+Created Buffers
+Collision 
+Collision 

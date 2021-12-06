@@ -24,41 +24,35 @@ struct hash<Vertex> {
   }
 };
 }  // namespace std
-   // namespace std
 
 void Building::createBuffers() {
-  fmt::print("passou\n");
-
   for (const auto offset : iter::range<int>(0, verticeGroups.size(), 1)) {
     VBO.push_back(0);
     EBO.push_back(0);
     VAO.push_back(0);
   }
-  fmt::print("verticeGroups {} \n", verticeGroups.size());
+
   for (const auto offset : iter::range<int>(0, verticeGroups.size(), 1)) {
-    // fmt::print("passou {} \n", offset);
     abcg::glDeleteBuffers(1, &EBO[offset]);
     abcg::glDeleteBuffers(1, &VBO[offset]);
 
     // VBO
     abcg::glGenBuffers(1, &VBO[offset]);
     abcg::glBindBuffer(GL_ARRAY_BUFFER, VBO.at(offset));
-    // fmt::print("passou {} \n", offset);
+
     abcg::glBufferData(
         GL_ARRAY_BUFFER,
         sizeof(verticeGroups[offset][0]) * verticeGroups[offset].size(),
         verticeGroups[offset].data(), GL_STATIC_DRAW);
     abcg::glBindBuffer(GL_ARRAY_BUFFER, 0);
-    // fmt::print("passou {} \n", indices[offset].size());
-    // EBO
 
+    // EBO
     abcg::glGenBuffers(1, &EBO[offset]);
     abcg::glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO[offset]);
     abcg::glBufferData(GL_ELEMENT_ARRAY_BUFFER,
                        sizeof(indices[offset][0]) * indices[offset].size(),
                        indices[offset].data(), GL_STATIC_DRAW);
     abcg::glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-    // fmt::print("passou {} \n", offset);
   }
 
   fmt::print("Created Buffers\n");
@@ -72,8 +66,6 @@ void Building::initGame(glm::vec3 position) {
 }
 
 void Building::setupVAO(int groupOffset) {
-  // for (const auto groupOffset : iter::range<int>(0, verticeGroups.size(), 1))
-  // {
   abcg::glDeleteVertexArrays(1, &VAO[groupOffset]);
 
   // Create VAO
@@ -116,7 +108,6 @@ void Building::setupVAO(int groupOffset) {
   // End of binding
   abcg::glBindBuffer(GL_ARRAY_BUFFER, 0);
   abcg::glBindVertexArray(0);
-  // }
 }
 
 void Building::initializeGL(GLuint _program, std::string assetsPath) {
@@ -125,13 +116,11 @@ void Building::initializeGL(GLuint _program, std::string assetsPath) {
                     assetsPath + "building/");
 
   createBuffers();
-  // setupVAO();
   rederingTypeLocale = abcg::glGetUniformLocation(program, "rederingType");
 
   colisionRect =
       Rectangle{.coord = glm::vec2(position.x - 0.575, position.z - 0.575),
                 .size = glm::vec2(1.15f)};
-  // 0.575
 }
 
 void Building::loadModelFromFile(std::string_view path,
@@ -168,17 +157,13 @@ void Building::loadModelFromFile(std::string_view path,
   std::vector<std::unordered_map<Vertex, GLuint>> hash{};
 
   int i = 0;
-  fmt::print("{}\n", shapes.size());
   // Loop over shapes
   for (const auto& shape : shapes) {
-    fmt::print("Building - shape\n");
     hash.push_back(std::unordered_map<Vertex, GLuint>());
     indices.push_back(std::vector<GLuint>());
     verticeGroups.push_back(std::vector<Vertex>());
-    fmt::print("--> {}\n", verticeGroups.size());
     // Loop over indices
     for (const auto offset : iter::range(shape.mesh.indices.size())) {
-      // fmt::print("Building - mesh\n");
       // Access to vertex
       const tinyobj::index_t index{shape.mesh.indices.at(offset)};
 
@@ -219,22 +204,18 @@ void Building::loadModelFromFile(std::string_view path,
         // Add this index (size of vertices)
         hash.at(i)[vertex] = verticeGroups.at(i).size();
         // Add this vertex
-        // verticeGroups.push_back(std::vector<Vertex>());
         verticeGroups.at(i).push_back(vertex);
       }
       indices.at(i).push_back(hash.at(i)[vertex]);
     }
-    fmt::print("Vertex: {}\n", verticeGroups.at(i).size());
-    fmt::print("test: {} ", shape.mesh.material_ids[0]);
-    fmt::print("material_ids(size): {}   test: {}\n",
-               shape.mesh.material_ids.size(), shape.mesh.indices.size());
     i++;
   }
 
   // Use properties of first material, if available
   if (!materials.empty()) {
     for (const auto groupOffset : iter::range(materials.size())) {
-      fmt::print("loading Materials {}/{}\n", groupOffset+1, materials.size());
+      fmt::print("Loading Materials {}/{}\n", groupOffset + 1,
+                 materials.size());
       const auto& mat{materials.at(groupOffset)};  // First material
       m_Ka.push_back(
           glm::vec4(mat.ambient[0], mat.ambient[1], mat.ambient[2], 1));
@@ -245,8 +226,7 @@ void Building::loadModelFromFile(std::string_view path,
       m_shininess.push_back(mat.shininess);
 
       if (!mat.diffuse_texname.empty()) {
-        printf("diffuse_texname \n");
-        fmt::print("loading Texture {}\n", assetsPath + mat.diffuse_texname);
+        fmt::print("Loading Texture {}\n", assetsPath + mat.diffuse_texname);
         const auto texture =
             abcg::opengl::loadTexture(assetsPath + mat.diffuse_texname);
         m_diffuseTexture.push_back(texture);
@@ -254,23 +234,15 @@ void Building::loadModelFromFile(std::string_view path,
         m_diffuseTexture.push_back(0);
       }
     }
-  } else {
-    // Default values
-    // m_Ka = {0.1f, 0.1f, 0.1f, 1.0f};
-    // m_Kd = {0.7f, 0.7f, 0.7f, 1.0f};
-    // m_Ks = {1.0f, 1.0f, 1.0f, 1.0f};
-    // m_shininess = 25.0f;
   }
-  fmt::print("textures loaded\n");
-  // if (!m_hasNormals) {
+  fmt::print("Textures loaded\n");
+  if (!m_hasNormals) {
     computeNormals();
-  // }
-  fmt::print("normals computed\n");
+  }
+  fmt::print("Normals computed\n");
 }
 
 void Building::loadDiffuseTexture(std::string_view path, int index) {
-  // if (!std::filesystem::exists(path)) return;
-
   abcg::glDeleteTextures(1, &m_diffuseTexture[index]);
   m_diffuseTexture.at(index) = abcg::opengl::loadTexture(path);
 }
@@ -285,13 +257,14 @@ void Building::setLightConfig(LightProperties light, int textureIndex) {
   const GLint KaLoc{abcg::glGetUniformLocation(program, "Ka")};
   const GLint KdLoc{abcg::glGetUniformLocation(program, "Kd")};
   const GLint KsLoc{abcg::glGetUniformLocation(program, "Ks")};
-  const auto lightDirRotated{glm::vec4(100.0f, 100.0f, 100.0f, 10.0f) *
-                             light.lighDir};
+
+  const auto lightDirRotated{glm::vec4(1.0f, 1.0f, 1.0f, 1.0f) * light.lighDir};
+
   abcg::glUniform4fv(lightDirLoc, 1, &lightDirRotated.x);
   abcg::glUniform4fv(IaLoc, 1, &light.Ia.x);
   abcg::glUniform4fv(IdLoc, 1, &light.Id.x);
   abcg::glUniform4fv(IsLoc, 1, &light.Is.x);
-  abcg::glUniform1f(shininessLoc, light.shininess);
+  abcg::glUniform1f(shininessLoc, m_shininess[textureIndex]);
   abcg::glUniform4fv(KaLoc, 1, &m_Ka[textureIndex].x);
   abcg::glUniform4fv(KdLoc, 1, &m_Kd[textureIndex].x);
   abcg::glUniform4fv(KsLoc, 1, &m_Ks[textureIndex].x);
@@ -306,7 +279,6 @@ void Building::computeNormals() {
     // Compute face normals
     for (const auto offset :
          iter::range<int>(0, verticeGroups[groupOffset].size() - 3, 3)) {
-      // fmt::print("{}", verticeGroups[groupOffset][0].);
       // Get face vertices
       Vertex& a = verticeGroups.at(groupOffset).at(offset);
       Vertex& b = verticeGroups.at(groupOffset).at(offset + 1);
@@ -330,17 +302,16 @@ void Building::computeNormals() {
 
     m_hasNormals = true;
   }
-  // Clear previous vertex normals
 }
 
 void Building::paintGL(LightProperties light) {
   abcg::glUseProgram(program);
 
   glm::mat4 model{1.0f};
-  model = glm::translate(model, position + glm::vec3(0, 0, -1.10f)
-                         // + glm::vec3(-0.5f, 1.2f, 0)
-  );
+  model = glm::translate(model, position + glm::vec3(0, 0, -1.10f));
+
   model = glm::scale(model, scale);
+
   abcg::glUniformMatrix4fv(abcg::glGetUniformLocation(program, "modelMatrix"),
                            1, GL_FALSE, &model[0][0]);
   colisionRect =

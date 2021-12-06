@@ -188,8 +188,6 @@ void OpenGLWindow::paintGL() {
                                       .shininess = m_shininess,
                                       .lighDir = lighDir});
   }
-  // fmt::print("--> ({}, {}) \n", airplane.colisionRect.toString(),
-  //            buildings.front().building1.colisionRect.toString());
 
   int airplaneZPositionFloor = floor(airplane.position.z);
 
@@ -224,8 +222,6 @@ void OpenGLWindow::paintUI() {
                  ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoTitleBar |
                      ImGuiWindowFlags_NoInputs);
 
-    // font->FontSize = .025f;
-    // setFontSize(1);
     font->Scale = 1.0f;
     ImGui::PushFont(font);
     ImGui::Text("%i", gameState.points);
@@ -239,9 +235,6 @@ void OpenGLWindow::paintUI() {
                    ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoTitleBar |
                        ImGuiWindowFlags_NoInputs);
 
-      // this->font->Scale = 0.5f;
-
-      // setFontSize(0);
       font->Scale = 0.5f;
       ImGui::PushFont(this->font);
       ImGui::Text("Pressione 'space' para iniciar o jogo");
@@ -255,8 +248,7 @@ void OpenGLWindow::paintUI() {
       ImGui::Begin("  ", nullptr,
                    ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoTitleBar |
                        ImGuiWindowFlags_NoInputs);
-      // this->font->Scale = 2.0f;
-      // setFontSize(1);
+
       font->Scale = 1.0f;
       ImGui::PushFont(this->font);
       ImGui::Text("Você perdeu");
@@ -264,37 +256,6 @@ void OpenGLWindow::paintUI() {
       ImGui::PopFont();
       ImGui::End();
     }
-
-    // const auto widgetSize{ImVec2(222, 244)};
-    // ImGui::SetNextWindowPos(ImVec2(m_viewportWidth - widgetSize.x - 5,
-    //                                m_viewportHeight - widgetSize.y - 5));
-    // ImGui::SetNextWindowSize(widgetSize);
-    // ImGui::Begin(" ", nullptr, ImGuiWindowFlags_NoDecoration);
-
-    // ImGui::Text("Light properties");
-
-    // // Slider to control light properties
-    // ImGui::PushItemWidth(widgetSize.x - 36);
-    // ImGui::ColorEdit3("Ia", &m_Ia.x, ImGuiColorEditFlags_Float);
-    // ImGui::ColorEdit3("Id", &m_Id.x, ImGuiColorEditFlags_Float);
-    // ImGui::ColorEdit3("Is", &m_Is.x, ImGuiColorEditFlags_Float);
-    // ImGui::PopItemWidth();
-
-    // ImGui::Spacing();
-    // ImGui::PushItemWidth(widgetSize.x - 36);
-    // ImGui::ColorEdit3("coords", &lighDir.x, ImGuiColorEditFlags_Float);
-    // // ImGui::ColorEdit3("y", &m_Id.x, ImGuiColorEditFlags_Float);
-    // // ImGui::ColorEdit3("z", &m_Is.x, ImGuiColorEditFlags_Float);
-    // ImGui::PopItemWidth();
-
-    // ImGui::Spacing();
-
-    // // Slider to control the specular shininess
-    // ImGui::PushItemWidth(widgetSize.x - 16);
-    // ImGui::SliderFloat("", &m_shininess, 0.0f, 500.0f, "shininess: %.1f");
-    // ImGui::PopItemWidth();
-
-    // ImGui::End();
   }
 }
 
@@ -323,5 +284,3 @@ void OpenGLWindow::update() {
   m_camera.follow(airplane.position);
 }
 
-// bool reactsCollision(float r1x, float r1y, float r1w, float r1h, float r2x,
-// float r2y, float r2w, float r2h)

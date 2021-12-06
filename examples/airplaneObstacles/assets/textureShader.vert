@@ -5,15 +5,12 @@ layout(location = 1) in vec3 inNormal;
 layout(location = 2) in vec2 inTexCoord;
 
 uniform vec4 lightDirWorldSpace;
-uniform vec4 color;
 uniform mat4 modelMatrix;
 uniform mat4 viewMatrix;
 uniform mat4 projMatrix;
 
 uniform mat3 normalMatrix;
-uniform int rederingType;
 
-out vec4 fragColor;
 out vec3 fragV;
 out vec3 fragL;
 out vec3 fragN;

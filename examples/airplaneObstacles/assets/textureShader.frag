@@ -18,10 +18,6 @@ uniform float shininess;
 // Diffuse texture sampler
 uniform sampler2D diffuseTex;
 
-// Mapping mode
-// 0: triplanar; 1: cylindrical; 2: spherical; 3: from mesh
-// uniform int mappingMode;
-
 out vec4 outColor;
 
 // Blinn-Phong reflection model
